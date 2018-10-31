@@ -1,0 +1,12 @@
+spi_slave.c:35:13:spi_slave_cb	0	static
+spi_slave.c:5:5:spi_slave_get_chip_select	8	static
+spi_slave.c:8:5:spi_slave_set_phase	8	static
+spi_slave.c:11:5:spi_slave_get_phase	8	static
+spi_slave.c:14:5:spi_slave_set_polarity	8	static
+spi_slave.c:17:5:spi_slave_get_polarity	8	static
+spi_slave.c:22:5:spi_slave_chip_selected	8	static
+spi_slave.c:26:5:spi_slave_read_buf	8	static
+spi_slave.c:42:5:spi_slave_write	16	static
+spi_slave.c:62:5:spi_slave_read_write	16	static
+spi_slave.c:74:5:spi_slave_write_sync	24	static
+spi_slave.c:82:5:spi_slave_read_write_sync	40	static

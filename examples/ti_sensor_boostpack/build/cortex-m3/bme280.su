@@ -1,0 +1,16 @@
+bme280.c:1260:15:null_ptr_check	0	static
+bme280.c:391:8:bme280_get_regs	16	static
+bme280.c:416:8:bme280_set_regs	48	static
+bme280.c:701:15:set_osr_humidity_settings.isra.8	24	static
+bme280.c:727:15:set_osr_press_temp_settings	32	static
+bme280.c:752:15:set_filter_standby_settings	32	static
+bme280.c:496:8:bme280_get_sensor_settings	16	static
+bme280.c:541:8:bme280_get_sensor_mode	8	static
+bme280.c:562:8:bme280_soft_reset	24	static
+bme280.c:351:8:bme280_init	48	static
+bme280.c:847:15:put_device_to_sleep	32	static
+bme280.c:465:8:bme280_set_sensor_settings	24	static
+bme280.c:516:8:bme280_set_sensor_mode	24	static
+bme280.c:620:6:bme280_parse_sensor_data	0	static
+bme280.c:651:8:bme280_compensate_data	56	static
+bme280.c:587:8:bme280_get_sensor_data	48	static

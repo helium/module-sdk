@@ -1,0 +1,8 @@
+console.c:114:13:getnstr_cb	4	static
+console.c:74:5:putnstr_async	16	static
+console.c:37:5:putnstr	32	static
+console.c:17:13:putstr_cb	16	static
+console.c:94:5:getnstr_async	16	static
+console.c:122:5:getnstr	16	static
+console.c:139:5:getch	16	static
+console.c:148:5:getnstr_abort	8	static

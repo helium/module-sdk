@@ -1,0 +1,11 @@
+sdcard.c:37:13:sdcard_cb	4	static
+sdcard.c:72:5:sdcard_set_callback	8	static
+sdcard.c:76:5:sdcard_set_read_buffer	8	static
+sdcard.c:80:5:sdcard_set_write_buffer	8	static
+sdcard.c:84:5:sdcard_is_installed	8	static
+sdcard.c:88:5:sdcard_initialize	8	static
+sdcard.c:92:5:sdcard_initialize_sync	40	static
+sdcard.c:118:5:sdcard_read_block	8	static
+sdcard.c:122:5:sdcard_read_block_sync	32	static
+sdcard.c:140:5:sdcard_write_block	8	static
+sdcard.c:144:5:sdcard_write_block_sync	32	static

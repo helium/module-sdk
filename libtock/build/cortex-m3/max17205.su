@@ -1,0 +1,17 @@
+max17205.c:15:13:internal_user_cb	0	static
+max17205.c:29:13:max17205_cb	8	static
+max17205.c:39:5:max17205_set_callback	0	static
+max17205.c:48:5:max17205_read_status	16	static
+max17205.c:62:5:max17205_read_soc	16	static
+max17205.c:76:5:max17205_read_voltage_current	16	static
+max17205.c:90:5:max17205_read_coulomb	16	static
+max17205.c:104:5:max17205_read_rom_id	16	static
+max17205.c:118:5:max17205_read_status_sync	16	static
+max17205.c:136:5:max17205_read_soc_sync	24	static
+max17205.c:156:5:max17205_read_voltage_current_sync	16	static
+max17205.c:175:5:max17205_read_coulomb_sync	16	static
+max17205.c:193:5:max17205_read_rom_id_sync	24	static
+max17205.c:214:7:max17205_get_voltage_mV	8	static
+max17205.c:218:7:max17205_get_current_uA	8	static
+max17205.c:222:7:max17205_get_percentage_mP	8	static
+max17205.c:226:7:max17205_get_capacity_uAh	8	static

@@ -1,0 +1,2 @@
+bosch_port.c:6:9:tock_i2c_write	32	static
+bosch_port.c:19:9:tock_i2c_read	8	static

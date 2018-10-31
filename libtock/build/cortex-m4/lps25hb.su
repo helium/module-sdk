@@ -1,0 +1,4 @@
+lps25hb.c:12:13:lps25hb_cb	0	static
+lps25hb.c:21:5:lps25hb_set_callback	0	static
+lps25hb.c:25:5:lps25hb_get_pressure	0	static
+lps25hb.c:29:5:lps25hb_get_pressure_sync	8	static

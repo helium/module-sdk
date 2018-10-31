@@ -1,0 +1,5 @@
+tmp006.c:6:13:tmp006_cb	8	static
+tmp006.c:19:5:tmp006_read_sync	16	static
+tmp006.c:41:5:tmp006_read_async	0	static
+tmp006.c:49:5:tmp006_start_sampling	16	static
+tmp006.c:62:5:tmp006_stop_sampling	0	static

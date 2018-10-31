@@ -1,0 +1,10 @@
+pca9544a.c:12:13:pca9544a_cb	0	static
+pca9544a.c:22:5:pca9544a_set_callback	8	static
+pca9544a.c:26:5:pca9544a_select_channels	8	static
+pca9544a.c:30:5:pca9544a_disable_all_channels	8	static
+pca9544a.c:34:5:pca9544a_read_interrupts	8	static
+pca9544a.c:38:5:pca9544a_read_selected	8	static
+pca9544a.c:44:5:pca9544a_select_channels_sync	24	static
+pca9544a.c:60:5:pca9544a_disable_all_channels_sync	16	static
+pca9544a.c:76:5:pca9544a_read_interrupts_sync	16	static
+pca9544a.c:92:5:pca9544a_read_selected_sync	16	static

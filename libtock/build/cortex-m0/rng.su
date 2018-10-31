@@ -1,0 +1,6 @@
+rng.c:12:13:rng_cb	0	static
+rng.c:21:5:rng_set_buffer	8	static
+rng.c:25:5:rng_set_callback	8	static
+rng.c:29:5:rng_get_random	8	static
+rng.c:33:5:rng_async	16	static
+rng.c:45:5:rng_sync	24	static
