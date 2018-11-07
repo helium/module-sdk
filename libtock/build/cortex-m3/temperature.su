@@ -1,4 +1,0 @@
-temperature.c:12:13:cb	0	static
-temperature.c:21:5:temperature_set_callback	0	static
-temperature.c:25:5:temperature_read	0	static
-temperature.c:29:5:temperature_read_sync	16	static

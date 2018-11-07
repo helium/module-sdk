@@ -1,5 +1,0 @@
-button.c:3:5:button_subscribe	0	static
-button.c:7:5:button_count	0	static
-button.c:11:5:button_enable_interrupt	0	static
-button.c:15:5:button_disable_interrupt	0	static
-button.c:19:5:button_read	0	static

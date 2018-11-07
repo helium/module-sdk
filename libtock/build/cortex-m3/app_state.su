@@ -1,5 +1,0 @@
-app_state.c:7:13:app_state_sync_cb	0	static
-app_state.c:16:12:app_state_init	8	static
-app_state.c:33:5:app_state_load_sync	8	static
-app_state.c:44:5:app_state_save	16	static
-app_state.c:60:5:app_state_save_sync	16	static

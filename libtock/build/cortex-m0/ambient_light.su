@@ -1,4 +1,0 @@
-ambient_light.c:10:13:ambient_light_cb	0	static
-ambient_light.c:40:5:ambient_light_subscribe	8	static
-ambient_light.c:44:5:ambient_light_start_intensity_reading	8	static
-ambient_light.c:18:5:ambient_light_read_intensity_sync	24	static

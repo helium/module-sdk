@@ -1,2 +1,0 @@
-dac.c:4:5:dac_initialize	0	static
-dac.c:8:5:dac_set_value	0	static

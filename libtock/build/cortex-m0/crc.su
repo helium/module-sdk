@@ -1,6 +1,0 @@
-crc.c:25:13:callback	0	static
-crc.c:3:5:crc_exists	8	static
-crc.c:7:5:crc_request	8	static
-crc.c:11:5:crc_subscribe	8	static
-crc.c:15:5:crc_set_buffer	8	static
-crc.c:34:5:crc_compute	48	static

@@ -1,8 +1,0 @@
-udp.c:31:13:tx_done_callback	8	static
-udp.c:65:13:rx_done_callback	8	static
-udp.c:21:5:udp_socket	8	static
-udp.c:26:5:udp_close	0	static
-udp.c:39:9:udp_send_to	40	static
-udp.c:73:9:udp_recv_from_sync	32	static
-udp.c:94:9:udp_recv_from	24	static
-udp.c:111:5:udp_list_ifaces	8	static

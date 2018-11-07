@@ -1,6 +1,0 @@
-adc.c:69:6:dummy_cb	0	static
-adc.c:20:5:adc_set_callback	0	static
-adc.c:25:5:adc_single_sample	0	static
-adc.c:39:13:adc_cb	24	static
-adc.c:86:5:adc_read_async	16	static
-adc.c:74:5:adc_read	16	static

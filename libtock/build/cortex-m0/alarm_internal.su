@@ -1,4 +1,0 @@
-alarm_internal.c:3:5:alarm_internal_subscribe	8	static
-alarm_internal.c:7:5:alarm_internal_set	8	static
-alarm_internal.c:11:5:alarm_internal_stop	8	static
-alarm_internal.c:15:14:alarm_internal_frequency	8	static

@@ -1,6 +1,0 @@
-ipc.c:3:5:ipc_discover	16	static
-ipc.c:12:5:ipc_register_svc	0	static
-ipc.c:16:5:ipc_register_client_cb	0	static
-ipc.c:23:5:ipc_notify_svc	0	static
-ipc.c:27:5:ipc_notify_client	0	static
-ipc.c:31:5:ipc_share	0	static

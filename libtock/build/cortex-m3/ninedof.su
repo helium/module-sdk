@@ -1,7 +1,0 @@
-ninedof.c:16:13:ninedof_cb	0	static
-ninedof.c:43:5:ninedof_subscribe	0	static
-ninedof.c:47:5:ninedof_start_accel_reading	0	static
-ninedof.c:24:8:ninedof_read_accel_mag	24	static
-ninedof.c:51:5:ninedof_start_magnetometer_reading	0	static
-ninedof.c:55:5:ninedof_read_acceleration_sync	24	static
-ninedof.c:75:5:ninedof_read_magnetometer_sync	24	static

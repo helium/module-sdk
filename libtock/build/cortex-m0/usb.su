@@ -1,5 +1,0 @@
-usb.c:20:13:callback	0	static
-usb.c:3:5:usb_exists	8	static
-usb.c:7:5:usb_subscribe	8	static
-usb.c:11:5:usb_enable_and_attach_async	8	static
-usb.c:30:5:usb_enable_and_attach	24	static

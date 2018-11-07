@@ -1,7 +1,0 @@
-nonvolatile_storage_internal.c:3:5:nonvolatile_storage_internal_read_done_subscribe	8	static
-nonvolatile_storage_internal.c:7:5:nonvolatile_storage_internal_write_done_subscribe	8	static
-nonvolatile_storage_internal.c:11:5:nonvolatile_storage_internal_read_buffer	8	static
-nonvolatile_storage_internal.c:15:5:nonvolatile_storage_internal_write_buffer	8	static
-nonvolatile_storage_internal.c:19:5:nonvolatile_storage_internal_get_number_bytes	8	static
-nonvolatile_storage_internal.c:23:5:nonvolatile_storage_internal_read	8	static
-nonvolatile_storage_internal.c:28:5:nonvolatile_storage_internal_write	8	static

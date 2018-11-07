@@ -1,8 +1,0 @@
-unit_test.c:171:13:continue_cb	4	static
-unit_test.c:180:13:sync_with_supervisor	16	static
-unit_test.c:276:13:print_test_summary	40	static
-unit_test.c:257:13:print_test_result	16	static
-unit_test.c:293:13:timeout_cb	8	static
-unit_test.c:312:13:unit_test_service_cb	16	static
-unit_test.c:200:6:unit_test_runner	32	static
-unit_test.c:389:6:unit_test_service	8	static

@@ -1,3 +1,0 @@
-bmi160_port.c:9:8:bmi160_port_init	0	static
-bmi160_port.c:20:6:print_data	80	static
-bmi160_port.c:34:6:bmi160_print_data	56	static

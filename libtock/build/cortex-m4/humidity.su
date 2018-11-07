@@ -1,4 +1,0 @@
-humidity.c:12:13:cb	0	static
-humidity.c:21:5:humidity_set_callback	0	static
-humidity.c:25:5:humidity_read	0	static
-humidity.c:29:5:humidity_read_sync	16	static

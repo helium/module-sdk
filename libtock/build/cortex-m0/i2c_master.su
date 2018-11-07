@@ -1,4 +1,0 @@
-i2c_master.c:27:13:i2c_master_cb	4	static
-i2c_master.c:37:5:i2c_master_read	24	static
-i2c_master.c:54:5:i2c_master_write	24	static
-i2c_master.c:71:5:i2c_master_write_read	32	static
