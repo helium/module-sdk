@@ -90,8 +90,9 @@ int adc_read_async(uint8_t channel, adc_read_cb cb){
   if (request == NULL) return TOCK_ENOMEM;
 
   request->user_cb = cb;
-
-// there is a queue
+  request->next = NULL;
+  
+  // there is a queue
   if(adc_req_tail != NULL){
     // insert self in queue
     request->channel = channel;
@@ -101,12 +102,13 @@ int adc_read_async(uint8_t channel, adc_read_cb cb){
   // otherwise, just execute now
   else{
     adc_req_tail = request;
-    request->next = NULL;
+
     err = adc_set_callback(adc_cb, (void*) request);
     if (err < TOCK_SUCCESS) return err;
 
     err = adc_single_sample(channel);
     if (err < TOCK_SUCCESS) return err;
+
   }
 
   return TOCK_SUCCESS;
