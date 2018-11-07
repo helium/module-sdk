@@ -1,8 +1,8 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <timer.h>
 
+#include <timer.h>
 #include <adc.h>
 
 int main(void) {
