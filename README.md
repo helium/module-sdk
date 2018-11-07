@@ -89,7 +89,7 @@ Helium Apps that sit above the kernel.
 
   ## 10:00 AM - Welcome
 
-  ## 10:15 AM - Helium Overview: 
+  ## 10:15 AM - Helium Overview 
   
     * “Helium Overview and Vision” - Frank Mong
     * “New Platform and Architecture” - Coco Tang
@@ -106,7 +106,7 @@ Helium Apps that sit above the kernel.
   
   ## 12:00 PM - Lunch Delivered
   
-  ## 12:45 PM - Workshop:
+  ## 12:45 PM - Workshop
     
     * Building Tock Applications
       - Helium SensorPack Example
