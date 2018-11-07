@@ -81,4 +81,4 @@ Helium Apps that sit above the kernel.
    
   ## Upload
   
-  From the same directory, type `tockloader install --board launchxl-cc26x2r1 --openocd`. Even without hardware, you can test this and you will simply see openocd fail to reach the debugger. If you have hardware, you should see blinking LEDs! Success here verifies that tockloader and openocd are propery installed.  
+  From the same directory, type `tockloader install --board launchxl-cc26x2r1 --openocd './build/blink.tab'`. Even without hardware, you can test this and you will simply see openocd fail to reach the debugger. If you have hardware, you should see blinking LEDs! Success here verifies that tockloader and openocd are propery installed.  
