@@ -18,7 +18,7 @@ int main(void) {
     // increment or decrement value
     if (dir_up) {
       value += 1.0;
-    }else  {
+    }else {
       value -= 1.0;
     }
     pwm_set_duty_cycle(1, value);
@@ -26,7 +26,7 @@ int main(void) {
     // change direction depending on where we are
     if (value >= 100.0) {
       dir_up = false;
-    }else if (value <= 0.0)  {
+    }else if (value <= 0.0) {
       dir_up = true;
     }
 

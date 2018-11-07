@@ -16,10 +16,9 @@ int main(void) {
   uint8_t response;
   i2c_master_read_register(BOSCH_BME_ADDR, BOSCH_BME_ID_REG, &response);
 
-  if(response==BOSCH_BME_ID){
+  if (response == BOSCH_BME_ID) {
     printf("[I2C Master] Bosch BME280 Detected\r\n");
-  }
-  else{
+  }else  {
     printf("[I2C Master] Bosch BME280 Not Detected! ID reg read: %x\r\n", response);
     return 0;
   }
@@ -29,10 +28,9 @@ int main(void) {
   uint8_t read_config;
   i2c_master_read_register(BOSCH_BME_ADDR, BOSCH_BME_CTRL_MEAS_REG, &read_config);
 
-  if (arbitrary_config == read_config){
+  if (arbitrary_config == read_config) {
     printf("[I2C Master] Writing to Bosch Sensor OK\r\n");
-  }
-  else{
+  }else  {
     printf("[I2C Master] Writing to Bosch Sensor Failed. Wrote %x and read %x.\r\n", arbitrary_config, read_config);
   }
 
