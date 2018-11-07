@@ -13,25 +13,23 @@ int main(void) {
 
   float value = 0.0;
   bool dir_up = true;
-  while(1){
+  while (1) {
 
     // increment or decrement value
-    if(dir_up){
-        value += 1.0;
-    }
-    else{
-        value -= 1.0;
+    if (dir_up) {
+      value += 1.0;
+    }else  {
+      value -= 1.0;
     }
     pwm_set_duty_cycle(1, value);
-    
+
     // change direction depending on where we are
-    if(value >= 100.0){
-        dir_up = false;
+    if (value >= 100.0) {
+      dir_up = false;
+    }else if (value <= 0.0)  {
+      dir_up = true;
     }
-    else if (value <= 0.0){
-        dir_up = true;
-    }
-    
+
     delay_ms(1);
   }
 

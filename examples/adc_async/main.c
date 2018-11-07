@@ -20,22 +20,21 @@ int main(void) {
 
   printf("[ADC Async] Starting ADC App.\r\n");
   bool adc = driver_exists(DRIVER_NUM_ADC);
-  
+
   if (adc) {
     printf("[ADC Async] ADC Driver Detected\r\n");
   }
 
-  while(true & adc) {
+  while (true & adc) {
     adc_queue_empty = false;
-    for(uint8_t i=0; i<5; i++){
+    for (uint8_t i = 0; i < 5; i++) {
       adc_read_async(i, &adc_callback);
     }
     printf("\r\n");
     yield_for(&adc_queue_empty);
-    
+
     delay_ms(1000);
   }
 
-  
   return 0;
 }

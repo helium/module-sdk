@@ -42,24 +42,23 @@ static void adc_cb(int _x __attribute__ ((unused)),
                    void* callback_args) {
 
   adc_req_t* cur_req = (adc_req_t*) callback_args;
-  
-  if(cur_req->user_cb == NULL){
+
+  if (cur_req->user_cb == NULL) {
     // there is a bug in adc.c if this happened
   }
 
-  adc_read_cb cb = cur_req->user_cb;
+  adc_read_cb cb  = cur_req->user_cb;
   adc_req_t* next = cur_req->next;
   free(cur_req);
   (*cb)(channel, sample, next == NULL);
 
-  if(next != NULL){
+  if (next != NULL) {
     next->error = adc_set_callback(adc_cb, (void*) next);
     if (next->error < TOCK_SUCCESS) return;
 
     next->error = adc_single_sample(next->channel);
     if (next->error < TOCK_SUCCESS) return;
-  }
-  else{
+  }else {
     adc_req_tail = NULL;
   }
 }
@@ -69,7 +68,7 @@ static bool dummy_fired;
 void dummy_cb(int chan __attribute__ ((unused)), uint16_t sample, bool queue_empty __attribute__((unused)));
 void dummy_cb(int chan __attribute__ ((unused)), uint16_t sample, bool queue_empty __attribute__((unused))){
   *dummy_value = sample;
-  dummy_fired = true;
+  dummy_fired  = true;
 }
 
 int adc_read(uint8_t channel, uint16_t* sample) {
@@ -90,14 +89,14 @@ int adc_read_async(uint8_t channel, adc_read_cb cb){
   if (request == NULL) return TOCK_ENOMEM;
 
   request->user_cb = cb;
-  request->next = NULL;
-  
+  request->next    = NULL;
+
   // there is a queue
-  if(adc_req_tail != NULL){
+  if (adc_req_tail != NULL) {
     // insert self in queue
-    request->channel = channel;
+    request->channel   = channel;
     adc_req_tail->next = request;
-    adc_req_tail = request;
+    adc_req_tail       = request;
   }
   // otherwise, just execute now
   else{
