@@ -60,9 +60,9 @@ int adc_read_async(uint8_t channel, adc_read_cb cb){
   adc_req_t* request = (adc_req_t*)malloc(sizeof(adc_req_t));
   if (request == NULL) return TOCK_ENOMEM;
 
-  request->user_cb   = cb;
-  request->next      = NULL;
-  request->channel   = channel;
+  request->user_cb = cb;
+  request->next    = NULL;
+  request->channel = channel;
   // there is a queue
   if (adc_req_queue != NULL) {
     // insert self in queue
@@ -75,7 +75,7 @@ int adc_read_async(uint8_t channel, adc_read_cb cb){
     adc_req_queue = request;
     return adc_dispatch_request(request);
   }
-  
+
 }
 
 static int adc_set_callback(subscribe_cb callback, adc_req_t* req) {
@@ -125,7 +125,5 @@ static void adc_cb(int _x __attribute__ ((unused)),
     adc_req_queue = NULL;
   }
 }
-
-
 
 
