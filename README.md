@@ -2,23 +2,28 @@
 
 # Helium Module SDK
 
-This repository contains libraries and example applications for developing Helium Applications above [the TockOS kernel](https://github.com/tock/tock). It is a Helium curated fork of the original [libtock-c](https://github.com/tock/libtock-c).
+This directory contains libraries and example applications for developing
+Helium Apps that sit above the kernel.
 
 
 # Installing Depedencies
 
 ## Windows 10 (64-bit)
   
+  Install [Cygwin](https://cygwin.com/install.html) so that Makefiles work. Cygwin has lots of things to install, 
+  <a href="https://s3.us-east-2.amazonaws.com/helium-module-sdk/cygwin.png" target="_blank">but all you need is Make</a>.
+  
   Download [TI XDS Emulation Package](http://software-dl.ti.com/dsps/forms/self_cert_export.html?prod_no=ti_emupack_setup_8.0.803.0_win_32.exe&ref_url=http://software-dl.ti.com/dsps/dsps_public_sw/sdo_ccstudio/emulation) so that we can communicate to the LaunchXL over USB.
   
-  Download [this zipfile](https://s3.us-east-2.amazonaws.com/helium-module-sdk/module-sdk-deps.zip) which contains OpenOCD, Make, the ARM GNU toolchain, and elf2tab. 
+  Download [this zipfile](https://s3.us-east-2.amazonaws.com/helium-module-sdk/module-sdk-deps.zip) which contains OpenOCD, the ARM GNU toolchain, and elf2tab. 
   
   The zipfile has a script called `set_paths.ps1` to help, but you can manually add the three paths to your environment's Path:
   * `[PATH_TO_DIRECTORY]\cargo\bin`
   * `[PATH_TO_DIRECTORY]\gnu_arm_embedded\7 2018-q2-update\bin`
   * `[PATH_TO_DIRECTORY]\OpenOCD\0.10.0-9-20181016-1725\bin`
-  * `[PATH_TO_DIRECTORY]\make`
-	
+  
+  If you haven't done it yet, `C:\cygwin64\bin` should also be added to Paths (assuming that's where you installed Cygwin).
+  
   NOTE: to use the script, you need to enable Powershell scripts. <a href="https://s3.us-east-2.amazonaws.com/helium-module-sdk/powershell.png" target="_blank">Open up Powershell as admin</a>, and type `Set-ExecutionPolicy Unrestricted`. Now you can execute the `set_paths.ps1` which will put all four paths in your environment path.
   
   Install Tockloader (depends on [Python3](https://www.python.org/downloads/release/python-371/)):

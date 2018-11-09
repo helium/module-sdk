@@ -1,9 +1,7 @@
 // ADC interface
 #include <stdint.h>
 #include <stdio.h>
-
 #include <stdlib.h>
-
 
 #include "adc.h"
 #include "tock.h"
@@ -114,9 +112,10 @@ static void adc_cb(int _x __attribute__ ((unused)),
   // free current request
   free(cur_req);
 
-  // fire callback (WARNING: we don't check for null pointer because
-  // it's all internal to this library but this is generally unsafe)
-  (*cb)(channel, sample, next == NULL);
+  // fire callback
+  if (cb != NULL) {
+    (*cb)(channel, sample, next == NULL);
+  }
 
   // dispatch next request
   if (next != NULL) {
@@ -125,5 +124,3 @@ static void adc_cb(int _x __attribute__ ((unused)),
     adc_req_queue = NULL;
   }
 }
-
-
