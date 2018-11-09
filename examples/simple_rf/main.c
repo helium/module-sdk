@@ -38,56 +38,55 @@ static void timer_callback( __attribute__ ((unused)) int arg0,
 char* create_payload(void);
 
 int main(void) {
-    printf("Simple RF Demo!");
+  printf("Simple RF Demo!");
 
-    button_subscribe(button_callback, NULL);
+  button_subscribe(button_callback, NULL);
 
-    // Enable interrupts on each button.
-    int count = button_count();
-    for (int i = 0; i < count; i++) {
-      button_enable_interrupt(i);
-    }
+  // Enable interrupts on each button.
+  int count = button_count();
+  for (int i = 0; i < count; i++) {
+    button_enable_interrupt(i);
+  }
 
-    if (!helium_driver_check()) {
-        printf("Driver check OK\r\n");
+  if (!helium_driver_check()) {
+    printf("Driver check OK\r\n");
+  } else {
+    printf("Driver check FAIL\r\n");
+  }
+
+  if (!helium_set_address(address)) {
+    printf("Set address OK\r\n");
+  } else {
+    printf("Set address FAIL\r\n");
+  }
+
+  if (!helium_init()) {
+    printf("Helium init OK\r\n");
+  } else {
+    printf("Helium init FAIL\r\n");
+  }
+
+  timer_every(30000, timer_callback, NULL, &simple_timer);
+
+  while (1) {
+    yield_for(&new_event);
+
+    snprintf(message, 125,
+             "{\"team\":\"%9s\",\"payload\":\"Hello World!\"}\0",
+             address);
+    printf("Message [%s]", message);
+
+    int res = helium_send(0x0000, CAUT_TYPE_NONE, message, sizeof(message));
+    if (res != TOCK_SUCCESS) {
+      printf("\r\nSend Fail\r\n");
     } else {
-        printf("Driver check FAIL\r\n");
+      printf("\r\nSend SUCCESS\r\n");
     }
 
-    if (!helium_set_address(address)) {
-        printf("Set address OK\r\n");
-    } else {
-        printf("Set address FAIL\r\n");
-    }
+    new_event = false;
+    led_off(0);
+    led_off(1);
+  }
 
-    if (!helium_init()) {
-        printf("Helium init OK\r\n");
-    } else {
-        printf("Helium init FAIL\r\n");
-    }
-
-    timer_every(30000, timer_callback, NULL, &simple_timer);
-
-    while (1) {
-        yield_for(&new_event);
-
-        snprintf(message, 125,
-                 "{\"team\":\"%9s\",\"payload\":\"Hello World!\"}\0",
-                 address);
-        printf("Message [%s]", message);
-        
-        
-        int res = helium_send(0x0000, CAUT_TYPE_NONE, message, sizeof(message));
-        if (res != TOCK_SUCCESS) {
-          printf("\r\nSend Fail\r\n");
-        } else {
-          printf("\r\nSend SUCCESS\r\n");
-        }
-        
-        new_event = false;
-        led_off(0);
-        led_off(1);
-    }
-
-    return 0;
+  return 0;
 }

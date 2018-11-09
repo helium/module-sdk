@@ -90,7 +90,7 @@ int helium_send(unsigned short addr,
   yield_for(&tx_done);
   if (tx_result != TOCK_SUCCESS) {
     return tx_result;
-  }else  {
+  }else {
     return TOCK_SUCCESS;
   }
 

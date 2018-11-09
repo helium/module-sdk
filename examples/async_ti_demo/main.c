@@ -67,93 +67,93 @@ static void timer_callback( __attribute__ ((unused)) int arg0,
 }
 
 int main(void) {
-    int8_t rslt;
+  int8_t rslt;
 
-    printf("TI Sensor BoosterPack with Helium");
+  printf("TI Sensor BoosterPack with Helium");
 
-    button_subscribe(button_callback, NULL);
+  button_subscribe(button_callback, NULL);
 
-    // Enable interrupts on each button.
-    int count = button_count();
-    for (int i = 0; i < count; i++) {
-      button_enable_interrupt(i);
-    }
+  // Enable interrupts on each button.
+  int count = button_count();
+  for (int i = 0; i < count; i++) {
+    button_enable_interrupt(i);
+  }
 
-    rslt = bme280_port_init(&bme280);
-    if (rslt != BME280_OK) {
-        printf("BME280 Initialization Failed\r\n");
-        while (1) ;
-    }else {
-        printf("BME280 Initialized\r\n");
-    }
-    bme280_setup(&bme280);
+  rslt = bme280_port_init(&bme280);
+  if (rslt != BME280_OK) {
+    printf("BME280 Initialization Failed\r\n");
+    while (1) ;
+  }else {
+    printf("BME280 Initialized\r\n");
+  }
+  bme280_setup(&bme280);
 
-    rslt = bmi160_port_init(&bmi160);
-    if (rslt != BMI160_OK) {
-        printf("BMI160 Initialization Failed\r\n");
-        while (1) ;
-    }else {
-        printf("BMI160 Initialized\r\n");
-    }
-    bmi160_setup(&bmi160);
+  rslt = bmi160_port_init(&bmi160);
+  if (rslt != BMI160_OK) {
+    printf("BMI160 Initialization Failed\r\n");
+    while (1) ;
+  }else {
+    printf("BMI160 Initialized\r\n");
+  }
+  bmi160_setup(&bmi160);
 
-    rslt = bmm150_port_init(&bmm150);
-    if (rslt != BMM150_OK) {
-        printf("BMM150 Initialization Failed\r\n");
-        while (1) ;
-    }else {
-        printf("BMM150 Initialized\r\n");
-    }
-    bmm150_setup(&bmm150);
+  rslt = bmm150_port_init(&bmm150);
+  if (rslt != BMM150_OK) {
+    printf("BMM150 Initialization Failed\r\n");
+    while (1) ;
+  }else {
+    printf("BMM150 Initialized\r\n");
+  }
+  bmm150_setup(&bmm150);
 
-    // optionally pass custom parameters instead of NULL
-    if (!OPT3001_init(&opt3001, NULL)) {
-        printf("OPT3001 Initialization Failed\r\n");
-        while (1) ;
-    }else {
-        printf("OPT3001 Initialized\r\n");
-    }
+  // optionally pass custom parameters instead of NULL
+  if (!OPT3001_init(&opt3001, NULL)) {
+    printf("OPT3001 Initialization Failed\r\n");
+    while (1) ;
+  }else {
+    printf("OPT3001 Initialized\r\n");
+  }
 
-    if (!helium_driver_check()) {
-        printf("Driver check OK\r\n");
+  if (!helium_driver_check()) {
+    printf("Driver check OK\r\n");
+  } else {
+    printf("Driver check FAIL\r\n");
+  }
+
+  if (!helium_init()) {
+    printf("Helium init OK\r\n");
+  } else {
+    printf("Helium init FAIL\r\n");
+  }
+
+  timer_every(30000, timer_callback, NULL, &sensor_sample_timer);
+
+  while (1) {
+    yield_for(&new_event);
+    bme280_get_sample_forced_mode(&bme280, &bme_data);
+    bmi160_get_all_with_time(&bmi160, &bmi_accel, &bmi_gyro);
+    bmm150_get_data(&bmm150);
+    bool lux = opt3001_get_lux(&opt3001);
+
+    snprintf(message, 125,
+             "{\"team\":\"%3s\",\"payload\":{\"bme\":%ld,\"bmi\":{\"x\":%d,\"y\":%d,\"z\":%d},\"lux\":%d,\"bmm\":{\"x\":%d,\"y\":%d,\"z\":%d}}}\0",
+             address, bme_data.temperature, bmi_gyro.x,bmi_gyro.y,bmi_gyro.z,lux,bmm150.data.x,bmm150.data.y,
+             bmm150.data.z);
+    printf("Message [%s]", message);
+
+    int res = helium_send(0x0000, CAUT_TYPE_NONE, message, strlen(message));
+    if (res != TOCK_SUCCESS) {
+      printf("\r\nSend Fail\r\n");
     } else {
-        printf("Driver check FAIL\r\n");
+      printf("\r\nSend SUCCESS\r\n");
     }
 
-    if (!helium_init()) {
-      printf("Helium init OK\r\n");
-    } else {
-      printf("Helium init FAIL\r\n");
-    }
+    new_event = false;
+    led_off(0);
+    led_off(1);
+  }
 
-    timer_every(30000, timer_callback, NULL, &sensor_sample_timer);
-
-    while (1) {
-        yield_for(&new_event);
-        bme280_get_sample_forced_mode(&bme280, &bme_data);
-        bmi160_get_all_with_time(&bmi160, &bmi_accel, &bmi_gyro);
-        bmm150_get_data(&bmm150);
-        bool lux = opt3001_get_lux(&opt3001);
-            
-        snprintf(message, 125,
-                 "{\"team\":\"%3s\",\"payload\":{\"bme\":%ld,\"bmi\":{\"x\":%d,\"y\":%d,\"z\":%d},\"lux\":%d,\"bmm\":{\"x\":%d,\"y\":%d,\"z\":%d}}}\0",
-                 address, bme_data.temperature, bmi_gyro.x,bmi_gyro.y,bmi_gyro.z,lux,bmm150.data.x,bmm150.data.y,
-                 bmm150.data.z);
-        printf("Message [%s]", message);
-        
-        int res = helium_send(0x0000, CAUT_TYPE_NONE, message, strlen(message));
-        if (res != TOCK_SUCCESS) {
-          printf("\r\nSend Fail\r\n");
-        } else {
-          printf("\r\nSend SUCCESS\r\n");
-        }
-        
-        new_event = false;
-        led_off(0);
-        led_off(1);
-    }
-
-    return 0;
+  return 0;
 }
 
 int8_t bme280_setup(struct bme280_dev *dev)
