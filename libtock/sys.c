@@ -1,9 +1,10 @@
 #include <errno.h>
+#include <stdlib.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include "console.h"
 #include "tock.h"
+#include "uart.h"
 
 // XXX Suppress unused parameter warnings for this file as the implementations
 // are currently all just stubs
@@ -42,7 +43,7 @@ int _open(const char* path, int flags, ...)
 }
 int _write(int fd, const void *buf, uint32_t count)
 {
-  putnstr((const char*)buf, count);
+  uart_write(0, (uint8_t*) buf, count);
   return count;
 }
 int _close(int fd)
