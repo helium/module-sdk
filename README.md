@@ -81,37 +81,4 @@ Helium Apps that sit above the kernel.
    
   ## Upload
   
-  From the same directory, type `tockloader install --board launchxl-cc26x2r1 --openocd './build/blink.tab'`. Even without hardware, you can test this and you will simply see openocd fail to reach the debugger. If you have hardware, you should see blinking LEDs! Success here verifies that tockloader and openocd are propery installed. 
-
-# Developer Day Schedule
-
-  This schedule is a general guide for activities at the Helium office for developer day. While we will probably not stick strictly to this schedule, these are the topics and developer sessions you can expect to work through during the day.
-
-  ## 10:00 AM - Welcome
-
-  ## 10:15 AM - Helium Overview 
-  
-    * “Helium Overview and Vision” - Frank Mong
-    * “New Platform and Architecture” - Coco Tang
-    * Blockchain and Wallet Demonstration
-
-  ## 11:00 AM - Talking Tock
-
-    * Compare and contrast Gen 1 vs Gen 2
-    * Tock Architecture Overview
-      - Overview of Tock Application Environment
-      - Synchronous environment
-      - Asynchronous environment
-      - Applications in C
-  
-  ## 12:00 PM - Lunch Delivered
-  
-  ## 12:45 PM - Workshop
-    
-    * Building Tock Applications
-      - Helium SensorPack Example
-      - Synchronous/Asynchronous application
-    * Case studies and feedback on current deployments
-    * Developer feedback
-  
-  ## 5:00 PM - Closing 
+  From the same directory, type `tockloader install --board launchxl-cc26x2r1 --openocd './build/blink.tab'`. Even without hardware, you can test this and you will simply see openocd fail to reach the debugger. If you have hardware, you should see blinking LEDs! Success here verifies that tockloader and openocd are propery installed.  

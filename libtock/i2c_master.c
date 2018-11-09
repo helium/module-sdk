@@ -48,7 +48,7 @@ int i2c_master_read(uint8_t address, uint8_t * buffer, uint8_t rlen) {
   if (err < 0) return err;
 
   yield_for(&result.fired);
-  return result.length;
+  return TOCK_SUCCESS;
 }
 
 int i2c_master_write(uint8_t address, uint8_t * buffer, uint8_t wlen) {
@@ -65,7 +65,7 @@ int i2c_master_write(uint8_t address, uint8_t * buffer, uint8_t wlen) {
   if (err < 0) return err;
 
   yield_for(&result.fired);
-  return result.length;
+  return TOCK_SUCCESS;
 }
 
 int i2c_master_write_read(uint8_t address, uint8_t * buffer, uint8_t wlen, uint8_t rlen) {
@@ -83,5 +83,16 @@ int i2c_master_write_read(uint8_t address, uint8_t * buffer, uint8_t wlen, uint8
   if (err < 0) return err;
 
   yield_for(&result.fired);
-  return result.length;
+  return TOCK_SUCCESS;
+}
+
+
+int i2c_master_read_register(uint8_t address, uint8_t reg, uint8_t * value){
+  *value = reg;
+  return i2c_master_write_read(address, value, 1, 1);
+}
+
+int i2c_master_write_register(uint8_t address, uint8_t reg, uint8_t value){
+  uint8_t buffer[2] = { reg, value };
+  return i2c_master_write(address, buffer, sizeof(buffer));
 }

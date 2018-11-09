@@ -10,14 +10,11 @@
 #include "bmm150/bmm150_port.h"
 #include "opt3001/opt3001.h"
 
-#include <console.h>
+#include <button.h>
 #include <i2c_master.h>
+#include <led.h>
 #include <timer.h>
-
-
-
-char hello[] = "TI Sensor BoosterPack\r\n";
-
+#include <uart.h>
 
 int8_t bme280_setup(struct bme280_dev *dev);
 int8_t bme280_get_sample_forced_mode(struct bme280_dev *dev);
@@ -37,56 +34,94 @@ struct bmm150_dev bmm150;
 struct opt3001_dev opt3001;
 int8_t opt3001_get_lux(struct opt3001_dev *dev);
 
+bool new_event = true;
+
+// Button Press callback
+static void button_callback(int btn_num,
+                            int val,
+                            __attribute__ ((unused)) int arg2,
+                            __attribute__ ((unused)) void *ud) {
+
+  if (val == 1) {
+    led_on(btn_num);
+    new_event = true;
+  }
+}
+
+// Timer callback
+tock_timer_t sensor_sample_timer;
+static void timer_callback( __attribute__ ((unused)) int arg0,
+                            __attribute__ ((unused)) int arg1,
+                            __attribute__ ((unused)) int arg2,
+                            __attribute__ ((unused)) void *ud) {
+  new_event = true;
+}
 
 
 int main(void) {
 
   int8_t rslt;
 
-  putnstr(hello, sizeof(hello));
+  printf("[TI Sensors BoosterPack] Application Started\r\n");
+
+  button_subscribe(button_callback, NULL);
+
+  // Enable interrupts on each button.
+  int count = button_count();
+  for (int i = 0; i < count; i++) {
+    button_enable_interrupt(i);
+  }
 
   rslt = bme280_port_init(&bme280);
   if (rslt != BME280_OK) {
-    putnstr("BME280 Initialization Failed\r\n", 29);
+    printf_async("BME280 Initialization Failed\r\n");
     while (1) ;
   }else {
-    putnstr("BME280 Initialized\r\n", 20);
+    printf_async("BME280 Initialized\r\n");
   }
   bme280_setup(&bme280);
 
   rslt = bmi160_port_init(&bmi160);
   if (rslt != BMI160_OK) {
-    putnstr("BMI160 Initialization Failed\r\n", 29);
+    printf_async("BMI160 Initialization Failed\r\n");
     while (1) ;
   }else {
-    putnstr("BMI160 Initialized\r\n", 20);
+    printf_async("BMI160 Initialized\r\n");
   }
   bmi160_setup(&bmi160);
 
   rslt = bmm150_port_init(&bmm150);
   if (rslt != BMM150_OK) {
-    putnstr("BMM150 Initialization Failed\r\n", 29);
+    printf_async("BMM150 Initialization Failed\r\n");
     while (1) ;
   }else {
-    putnstr("BMM150 Initialized\r\n", 20);
+    printf_async("BMM150 Initialized\r\n");
   }
   bmm150_setup(&bmm150);
 
   // optionally pass custom parameters instead of NULL
   if (!OPT3001_init(&opt3001, NULL)) {
-    putnstr("OPT3001 Initialization Failed\r\n", 29);
+    printf_async("OPT3001 Initialization Failed\r\n");
     while (1) ;
   }else {
-    putnstr("OPT3001 Initialized\r\n", 20);
+    printf_async("OPT3001 Initialized\r\n");
   }
 
+  timer_every(60000, timer_callback, NULL, &sensor_sample_timer);
+
   while (1) {
+    yield_for(&new_event);
+
     bme280_get_sample_forced_mode(&bme280);
     bmi160_get_all_with_time(&bmi160);
     bmm150_get_data(&bmm150);
     opt3001_get_lux(&opt3001);
-    delay_ms(200);
+    new_event = false;
+    led_off(0);
+    led_off(1);
+
   }
+
   return 0;
 }
 
@@ -117,14 +152,6 @@ int8_t bme280_get_sample_forced_mode(struct bme280_dev *dev)
   /* Wait for the measurement to complete and print data @25Hz */
   dev->delay_ms(40);
 
-  /* Read status byte to verify */
-  uint8_t data[1];
-  do {
-    data[0] = 0xF3;
-    i2c_master_write_read(0x77, data, 1, 1);
-  }
-  while (data[0] != 0);
-
   rslt = bme280_get_sensor_data(BME280_ALL, &comp_data, dev);
   if (rslt != BME280_OK) {
     return rslt;
@@ -149,8 +176,7 @@ int8_t bmi160_setup(struct bmi160_dev *sensor){
   if (rslt != BMI160_OK) {
     return rslt;
   }else {
-    char debug[] = "Configured BMM160 as aux device to BMI160\r\n";
-    putnstr(debug, sizeof(debug));
+    printf_async("Configured BMM160 as aux device to BMI160\r\n");
   }
 
   /* Select the Output data rate, range of accelerometer sensor */
@@ -245,23 +271,30 @@ int8_t bmm150_get_data(struct bmm150_dev *dev){
   return rslt;
 }
 
-void opt3001_print_lux(float lux);
-void opt3001_print_lux(float lux){
-  char beg[] = "OPT3001 Lux ";
-  putnstr(beg, sizeof(beg));
-
-  char lux_output[] = "                                  ";
-  itoa (lux, lux_output, 10);
-  putnstr(lux_output, sizeof(lux_output));
-
-  putnstr("\r\n", 2);
-}
-
 int8_t opt3001_get_lux(struct opt3001_dev *dev){
-  float data;
-  bool res = OPT3001_getLux(dev, &data);
+  float data = 4.5;
+  bool res   = OPT3001_getLux(dev, &data);
 
-  opt3001_print_lux(data);
+  printf_async("OPT3001 Lux %i\r\n", data);
 
   return res != true;
 }
+
+void print_sensor_data(struct bme280_data *comp_data)
+{
+  printf_async("Temperature %ld, Pressure, %ld, Humidity %ld \r\n", comp_data->temperature, comp_data->pressure,
+               comp_data->humidity);
+}
+
+
+
+void bmm150_print_data(struct bmm150_mag_data *data)
+{
+  printf_async("BMI150 Gyro  x: %8i, y: %8i, z: %8i\r\n", data->x, data->y, data->z);
+}
+
+void bmi160_print_data(struct bmi160_sensor_data *accel, struct bmi160_sensor_data *gyro){
+  printf_async("BMM150 Accel x: %8i, y: %8i, z: %8i\r\n", accel->x, accel->y, accel->z);
+  printf_async("BMM150 Gyro  x: %8i, y: %8i, z: %8i\r\n", gyro->x, gyro->y, gyro->z);
+}
+

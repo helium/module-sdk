@@ -13,7 +13,7 @@ VPATH_DIRS += ./bmi160/
 C_SRCS += bmi160.c bmi160_port.c
 
 VPATH_DIRS += ./bmm150/
-C_SRCS += bmm150.c bmm150_port.c
+C_SRCS += bmm150.c
 
 VPATH_DIRS += ./opt3001/
 C_SRCS += opt3001.c

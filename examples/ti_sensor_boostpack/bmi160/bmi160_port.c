@@ -2,7 +2,6 @@
 #include "bmi160.h"
 #include "bmi160_port.h"
 
-#include <console.h>
 #include <stdlib.h>
 #include <timer.h>
 
@@ -15,31 +14,3 @@ int8_t bmi160_port_init(struct bmi160_dev *dev){
 
   return bmi160_init(dev);
 }
-
-void print_data(struct bmi160_sensor_data *data);
-void print_data(struct bmi160_sensor_data *data){
-  char x[] = "x:       ";
-  itoa (data->x, &x[3], 10);
-  putnstr(x, sizeof(x));
-
-  char y[] = ", y:               ";
-  itoa (data->y, &y[5], 10);
-  putnstr(y, sizeof(y));
-
-  char z[] = ", z:             ";
-  itoa (data->z, &z[5], 10);
-  putnstr(z, sizeof(z));
-}
-
-void bmi160_print_data(struct bmi160_sensor_data *accel, struct bmi160_sensor_data *gyro){
-  char accel_str[] = "BMI160 Accel ";
-  putnstr(accel_str, sizeof(accel_str));
-  print_data(accel);
-  putnstr("\r\n", 2);
-
-  char gyro_str[] = "BMI160 Gyro  ";
-  putnstr(gyro_str, sizeof(gyro_str));
-  print_data(gyro);
-  putnstr("\r\n", 2);
-}
-
