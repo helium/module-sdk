@@ -85,9 +85,10 @@ Helium Apps that sit above the kernel.
 
 # Common Issues
  
-  ## "Command not found" command line response. Application not in system path
+  ## "Command not found" command line response. Application is not in system path.
   
-  Check to make sure that the application installed is in the system path through you're .bashrc, .zprofile, or .zshrc file typically located in your `$HOME` directory.
+  If you have installed all of the above componenets correctly, check to make sure that the application install directory is in the system path. This can be found by checking either you're .bashrc, .zprofile, or .zshrc file, typically located in your `$HOME` directory. 
+  `ls -a ~/` or `ls -a $HOME/` to locate file and view/edit with text editor of your choice (vim, emacs, sublime etc...)
   
   If this is happening when attempting to envoke tockloader, check which python you have installed and where that python version installs executables. If you system has many different python versions, they may not all be listed in your system path.
 
