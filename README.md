@@ -45,8 +45,12 @@ Helium Apps that sit above the kernel.
   ```
   Download [TI XDS Emulation Package](http://software-dl.ti.com/dsps/forms/self_cert_export.html?prod_no=ti_emupack_setup_8.0.803.0_osx_x86_64.app.zip&ref_url=http://software-dl.ti.com/dsps/dsps_public_sw/sdo_ccstudio/emulation) so that we can communicate to the LaunchXL over USB.
   
-  Install [cargo/Rust](https://doc.rust-lang.org/cargo/getting-started/installation.html); a compilation utility is managed by it. 
-  
+  Install [rustup](https://rustup.rs/); a compilation utility is managed by it.
+ 
+  ```
+  $ curl https://sh.rustup.rs -sSf | sh
+  ```
+ 
   Install Tockloader (depends on Python3):
   ```
   $ pip3 install tockloader
@@ -63,7 +67,11 @@ Helium Apps that sit above the kernel.
 
   Download [TI XDS Emulation Package](http://software-dl.ti.com/dsps/forms/self_cert_export.html?prod_no=ti_emupack_setup_8.0.803.0_linux_x86_64.bin&ref_url=http://software-dl.ti.com/dsps/dsps_public_sw/sdo_ccstudio/emulation) so that we can communicate to the LaunchXL over USB.
   
-  Install [cargo/Rust](https://doc.rust-lang.org/cargo/getting-started/installation.html); a compilation utility is managed by it. 
+  Install [rustup](https://rustup.rs/); a compilation utility is managed by it. 
+  
+  ```
+  $ curl https://sh.rustup.rs -sSf | sh
+  ```
   
   Install Tockloader (this requires Python3):
 
@@ -81,4 +89,17 @@ Helium Apps that sit above the kernel.
    
   ## Upload
   
-  From the same directory, type `tockloader install --board launchxl-cc26x2r1 --openocd './build/blink.tab'`. Even without hardware, you can test this and you will simply see openocd fail to reach the debugger. If you have hardware, you should see blinking LEDs! Success here verifies that tockloader and openocd are propery installed.  
+  From the same directory, type `tockloader install --board launchxl-cc26x2r1 --openocd './build/blink.tab'`. Even without hardware, you can test this and you will simply see openocd fail to reach the debugger. If you have hardware, you should see blinking LEDs! Success here verifies that tockloader and openocd are propery installed. 
+
+# Common Issues
+ 
+  ## "Command not found" command line response. Application is not in system path.
+  
+  If you have installed all of the above componenets correctly, check to make sure that the application install directory is in the system path. This can be found by checking either you're .bashrc, .zprofile, or .zshrc file, typically located in your `$HOME` directory. 
+  `ls -a ~/` or `ls -a $HOME/` to locate file and view/edit with text editor of your choice (vim, emacs, sublime etc...)
+  
+  If this is happening when attempting to envoke tockloader, check which python you have installed and where that python version installs executables. If you system has many different python versions, they may not all be listed in your system path.
+
+  ## Example application fails to build with `make` due to elf2tab
+
+  Check that you have installed Rust through Rustup instead of installing from Rust source. Rustup will manage your toolchain and fetch elf2tab when you envoke `make` and rust+cargo seems to fail at this. 
