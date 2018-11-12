@@ -45,7 +45,7 @@ Helium Apps that sit above the kernel.
   ```
   Download [TI XDS Emulation Package](http://software-dl.ti.com/dsps/forms/self_cert_export.html?prod_no=ti_emupack_setup_8.0.803.0_osx_x86_64.app.zip&ref_url=http://software-dl.ti.com/dsps/dsps_public_sw/sdo_ccstudio/emulation) so that we can communicate to the LaunchXL over USB.
   
-  Install [rustup](curl https://sh.rustup.rs -sSf | sh); a compilation utility is managed by it. 
+  Install [rustup](https://rustup.rs/); a compilation utility is managed by it. `curl https://sh.rustup.rs -sSf | sh`  
   
   Install Tockloader (depends on Python3):
   ```
@@ -63,8 +63,7 @@ Helium Apps that sit above the kernel.
 
   Download [TI XDS Emulation Package](http://software-dl.ti.com/dsps/forms/self_cert_export.html?prod_no=ti_emupack_setup_8.0.803.0_linux_x86_64.bin&ref_url=http://software-dl.ti.com/dsps/dsps_public_sw/sdo_ccstudio/emulation) so that we can communicate to the LaunchXL over USB.
   
-  Install [rustup](curl https://sh.rustup.rs -sSf | sh); a compilation utility is managed by it. 
-  
+  Install [rustup](https://rustup.rs/); a compilation utility is managed by it. `curl https://sh.rustup.rs -sSf | sh`
   Install Tockloader (this requires Python3):
 
   ```
