@@ -97,7 +97,11 @@ Helium Apps which sit above the open-source [TockOS kernel](https://github.com/h
 
   ## Example application fails to build with `make` due to elf2tab
 
-  Check that you have installed Rust through Rustup instead of installing from Rust source. Rustup will manage your toolchain and fetch elf2tab when you envoke `make` and rust+cargo seems to fail at this. 
+  Check that you have installed Rust through Rustup instead of installing from Rust source. Rustup will manage your toolchain and fetch elf2tab when you envoke `make` and rust+cargo seems to fail at this.
+
+  ```
+  $ openocd -c "source [find board/ti_cc26x2_launchpad.cfg]; init; halt; flash erase_address 0x30000 0x10000; soft_reset_halt; resume; exit"
+  ``` 
 
 # Flashing the kernel
  
