@@ -1,0 +1,13 @@
+source [find board/ti_cc26x2_launchpad.cfg]
+
+init;
+halt;
+
+flash protect 0 0 last off;
+flash write_image erase launchxl.bin 0 bin;
+verify_image_checksum launchxl.bin 0 bin;
+flash write_image erase launchxlccfg.bin 0x57FA8 bin;
+verify_image_checksum launchxlccfg.bin 0x57FA8 bin;
+soft_reset_halt
+resume;
+exit;
