@@ -58,7 +58,7 @@ packet_sensor_t opt3001_lux;
 int8_t opt3001_get_lux(struct opt3001_dev *dev);
 
 bool new_event = true;
-unsigned char address[] = "invisleash";
+unsigned char address[] = "mmc";
 
 // Button Press callback
 static void button_callback(int btn_num,
@@ -90,17 +90,17 @@ int main(void) {
   // we will serlialize packets as human-readable JSON as ASCII
   packetizer_init(SER_MODE_JSON);
 
-  packetizer_add_sensor(&bme280_pressure, "bme280.pressure", UINT);
-  packetizer_add_sensor(&bme280_temperature, "bme280.temp", INT);
-  packetizer_add_sensor(&bme280_humidity, "bme280.humidity", UINT);
+  packetizer_add_sensor(&bme280_pressure, "pressure", UINT);
+  packetizer_add_sensor(&bme280_temperature, "temp", INT);
+  packetizer_add_sensor(&bme280_humidity, "humidity", UINT);
 
-  packetizer_add_sensor(&bmi160_accel_x, "bmi160.accel.x", INT);
-  packetizer_add_sensor(&bmi160_accel_y, "bmi160.accel.y", INT);
-  packetizer_add_sensor(&bmi160_accel_z, "bmi160.accel.z", INT);
+  packetizer_add_sensor(&bmi160_accel_x, "accel.x", INT);
+  packetizer_add_sensor(&bmi160_accel_y, "accel.y", INT);
+  packetizer_add_sensor(&bmi160_accel_z, "accel.z", INT);
 
-  packetizer_add_sensor(&bmm150_gyro_x, "bmm150.x", INT);
-  packetizer_add_sensor(&bmm150_gyro_y, "bmm150.y", INT);
-  packetizer_add_sensor(&bmm150_gyro_z, "bmm150.z", INT);
+  packetizer_add_sensor(&bmm150_gyro_x, "gyro.x", INT);
+  packetizer_add_sensor(&bmm150_gyro_y, "gyro.y", INT);
+  packetizer_add_sensor(&bmm150_gyro_z, "gyro.z", INT);
 
   packetizer_add_sensor(&opt3001_lux, "lux", INT);
 
