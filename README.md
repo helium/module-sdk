@@ -8,6 +8,8 @@ Helium Apps which sit above the open-source [TockOS kernel](https://github.com/h
 # Installing Dependencies
 
 ## Windows 10 (64-bit)
+
+  Download [Cygwin](https://cygwin.com/install.html) and [install make](https://s3.us-east-2.amazonaws.com/helium-module-sdk/cygwin.png). During the installation process, you will be prompted to add Cygwin to your environment path - do so. If you missed it, add it manually.
     
   Download [TI XDS Emulation Package](http://software-dl.ti.com/dsps/forms/self_cert_export.html?prod_no=ti_emupack_setup_8.0.803.0_win_32.exe&ref_url=http://software-dl.ti.com/dsps/dsps_public_sw/sdo_ccstudio/emulation) so that we can communicate to the LaunchXL over USB.
   
@@ -17,9 +19,9 @@ Helium Apps which sit above the open-source [TockOS kernel](https://github.com/h
   * `[PATH_TO_DIRECTORY]\cargo\bin`
   * `[PATH_TO_DIRECTORY]\gnu_arm_embedded\7 2018-q2-update\bin`
   * `[PATH_TO_DIRECTORY]\OpenOCD\0.10.0-9-20181016-1725\bin`
-  * `[PATH_TO_DIRECTORY]\make\`
   
   NOTE: to use the script, you need to enable Powershell scripts. <a href="https://s3.us-east-2.amazonaws.com/helium-module-sdk/powershell.png" target="_blank">Open up Powershell as admin</a>, and type `Set-ExecutionPolicy Unrestricted`. Now you can execute the `set_paths.ps1` which will put all four paths in your environment path.
+ 
   
   Install Tockloader (depends on [Python3](https://www.python.org/downloads/release/python-371/)):
   ```
