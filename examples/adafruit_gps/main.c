@@ -3,16 +3,18 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "Adafruit_GPS/Adafruit_GPS.h"
 #include <button.h>
 #include <led.h>
 #include <led.h>
 #include <packetizer.h>
 #include <rf.h>
 #include <timer.h>
-#include "Adafruit_GPS/Adafruit_GPS.h"
 
 packet_sensor_t pressure;
 packet_sensor_t temperature;
+packet_sensor_t lat;
+packet_sensor_t lon;
 
 #define GPS_SERIAL 1
 
@@ -63,7 +65,9 @@ int main(void) {
   }
 
   // Enable GPS
-  GPS_init(&gps, GPS_SERIAL); 
+  GPS_init(&gps, GPS_SERIAL);
+  sendCommand(&gps, PMTK_SET_NMEA_OUTPUT_RMCGGA);
+  sendCommand(&gps, PMTK_SET_NMEA_UPDATE_1HZ);
 
   if (!rf_driver_check()) {
     printf("Driver check OK\r\n");
@@ -87,6 +91,12 @@ int main(void) {
 
   while (1) {
     yield_for(&new_event);
+
+    if (waitForSentence(&gps, "$GPRMC")) {
+      packet_add_data(&lat, &gps.latitude);
+      packet_add_data(&lon, &gps.longitude);
+
+    }
 
     uint32_t pressure_data   = 1234567890;
     int32_t temperature_data = 1234567890;
