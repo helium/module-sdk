@@ -25,13 +25,9 @@
 char line1[MAXLINELENGTH];
 char line2[MAXLINELENGTH];
 // our index into filling the current line
-volatile uint8_t lineidx = 0;
+// volatile uint8_t lineidx = 0;
 // pointers to the double buffers
-volatile char *currentline;
-volatile char *lastline;
-volatile bool recvdflag;
-volatile bool inStandbyMode;
-uint8_t* buf;
+uint8_t buf[120];
 
 bool parseGPS(struct GPS* gps, char *nmea) {
   // do checksum check
@@ -250,32 +246,35 @@ bool parseGPS(struct GPS* gps, char *nmea) {
   return false;
 }
 
+uint8_t GPSavailable(struct GPS* gps) {
+    return uart_read_byte(gps->gpsSerial, buf);
+}
+
 char readGPS(struct GPS* gps) {
   char c = 0;
-
   if (gps->paused) return c;
-
-  c = (char)uart_read_byte(gps->gpsSerial, buf);
-  printf("%c",c);
-
+  uart_read(gps->gpsSerial, buf, 1);
+  
+  c = (char)buf[0];
+  
   if (c == '\n') {
-    currentline[lineidx] = 0;
+    gps->currentline[gps->lineidx] = 0;
 
-    if (currentline == line1) {
-      currentline = line2;
-      lastline    = line1;
+    if (gps->currentline == line1) {
+      gps->currentline = line2;
+      gps->lastline    = line1;
     } else {
-      currentline = line1;
-      lastline    = line2;
+      gps->currentline = line1;
+      gps->lastline    = line2;
     }
 
-    lineidx   = 0;
-    recvdflag = true;
+    gps->lineidx   = 0;
+    gps->recvdflag = true;
   }
-
-  currentline[lineidx++] = c;
-  if (lineidx >= MAXLINELENGTH)
-    lineidx = MAXLINELENGTH - 1;
+  gps->currentline[gps->lineidx] = c;
+  gps->lineidx += 1;
+  if (gps->lineidx >= MAXLINELENGTH)
+    gps->lineidx = MAXLINELENGTH - 1;
 
   return c;
 }
@@ -307,9 +306,9 @@ void pauseGPS(struct GPS* gps, bool p) {
   gps->paused = p;
 }
 
-char *lastNMEA(void) {
-  recvdflag = false;
-  return (char *)lastline;
+char *lastNMEA(struct GPS* gps) {
+  gps->recvdflag = false;
+  return (char *)gps->lastline;
 }
 
 // read a Hex value and return the decimal equivalent
@@ -335,7 +334,9 @@ bool waitForSentence(struct GPS* gps, const char *wait4me) {
     readGPS(gps);
 
     if (gps->recvdflag) {
-      char *nmea = lastNMEA();
+      gps->recvdflag = false;
+      char* nmea = gps->lastline;
+
       strncpy(str, nmea, 20);
       str[19] = 0;
       i++;
@@ -346,70 +347,13 @@ bool waitForSentence(struct GPS* gps, const char *wait4me) {
   return false;
 }
 
-bool LOCUS_StartLogger(struct GPS* gps) {
-  sendCommand(gps, PMTK_LOCUS_STARTLOG);
-  gps->recvdflag = false;
-  return waitForSentence(gps, PMTK_LOCUS_STARTSTOPACK);
-}
-
-bool LOCUS_StopLogger(struct GPS* gps) {
-  sendCommand(gps, PMTK_LOCUS_STOPLOG);
-  recvdflag = false;
-  return waitForSentence(gps, PMTK_LOCUS_STARTSTOPACK);
-}
-
-bool LOCUS_ReadStatus(struct GPS* gps) {
-  sendCommand(gps, PMTK_LOCUS_QUERY_STATUS);
-
-  if (!waitForSentence(gps, "$PMTKLOG"))
-    return false;
-
-  char *response = lastNMEA();
-  uint16_t parsed[10];
-  uint8_t i;
-
-  for (i = 0; i < 10; i++) parsed[i] = -1;
-
-  response = strchr(response, ',');
-  for (i = 0; i < 10; i++) {
-    if (!response || (response[0] == 0) || (response[0] == '*'))
-      break;
-    response++;
-    parsed[i] = 0;
-    while ((response[0] != ',') &&
-           (response[0] != '*') && (response[0] != 0)) {
-      parsed[i] *= 10;
-      char c = response[0];
-      if (isdigit(c))
-        parsed[i] += c - '0';
-      else
-        parsed[i] = c;
-      response++;
-    }
-  }
-  gps->LOCUS_serial = parsed[0];
-  gps->LOCUS_type   = parsed[1];
-  if (isalpha(parsed[2])) {
-    parsed[2] = parsed[2] - 'a' + 10;
-  }
-  gps->LOCUS_mode     = parsed[2];
-  gps->LOCUS_config   = parsed[3];
-  gps->LOCUS_interval = parsed[4];
-  gps->LOCUS_distance = parsed[5];
-  gps->LOCUS_speed    = parsed[6];
-  gps->LOCUS_status   = !parsed[7];
-  gps->LOCUS_records  = parsed[8];
-  gps->LOCUS_percent  = parsed[9];
-
-  return true;
-}
 
 // Standby Mode Switches
 bool standbyGPS(struct GPS* gps) {
-  if (inStandbyMode) {
+  if (gps->inStandbyMode) {
     return false;  // Returns false if already in standby mode, so that you do not wake it up by sending commands to GPS
   }else {
-    inStandbyMode = true;
+    gps->inStandbyMode = true;
     sendCommand(gps, PMTK_STANDBY);
     // return waitForSentence(PMTK_STANDBY_SUCCESS);  // don't seem to be fast enough to catch the message, or something else just is not working
     return true;
@@ -417,8 +361,8 @@ bool standbyGPS(struct GPS* gps) {
 }
 
 bool wakeupGPS(struct GPS* gps) {
-  if (inStandbyMode) {
-    inStandbyMode = false;
+  if (gps->inStandbyMode) {
+    gps->inStandbyMode = false;
     sendCommand(gps, "");  // send byte to wake it up
     return waitForSentence(gps, PMTK_AWAKE);
   }else {

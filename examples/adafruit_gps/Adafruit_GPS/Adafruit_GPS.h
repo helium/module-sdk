@@ -108,15 +108,16 @@ struct GPS {
     float angle;
     float magvariation;
     float HDOP;
-    uint16_t LOCUS_serial, LOCUS_records;
-    uint8_t LOCUS_type, LOCUS_mode, LOCUS_config, LOCUS_interval, LOCUS_distance, LOCUS_speed, LOCUS_status, LOCUS_percent;
     int32_t latitude_fixed, longitude_fixed;
     float latitudeDegrees, longitudeDegrees;
+    bool inStandbyMode;
 };
 
-char *lastNMEA(void);
+char *lastNMEA(struct GPS*);
 bool newNMEAreceived();
 void GPS_init(struct GPS*, uint8_t);
+
+uint8_t GPSavailable(struct GPS*);
 
 void sendCommand(struct GPS*, const char *);
 
@@ -137,9 +138,6 @@ bool standbyGPS(struct GPS*);
 //   https://github.com/adafruit/Adafruit-GPS-Library/pull/13
 
 bool waitForSentence(struct GPS*, const char *wait);
-bool LOCUS_StartLogger(struct GPS*);
-bool LOCUS_StopLogger(struct GPS*);
-bool LOCUS_ReadStatus(struct GPS*);
 
 uint8_t parseResponse(char *response);
 
