@@ -101,7 +101,7 @@ bool parseGPS(struct GPS* gps, char *nmea) {
       p += 3; // skip decimal point
       strncpy(degreebuff + 2, p, 4);
       degreebuff[6] = '\0';
-      minutes = 50 * atol(degreebuff) / 3;
+      minutes       = 50 * atol(degreebuff) / 3;
       gps->longitude_fixed   = degree + minutes;
       gps->longitude         = degree / 100000 + minutes * 0.000006F;
       gps->longitudeDegrees  = (gps->longitude - 100 * (int)(gps->longitude / 100)) / 60.0;
@@ -205,7 +205,7 @@ bool parseGPS(struct GPS* gps, char *nmea) {
       p += 3; // skip decimal point
       strncpy(degreebuff + 2, p, 4);
       degreebuff[6] = '\0';
-      minutes = 50 * atol(degreebuff) / 3;
+      minutes       = 50 * atol(degreebuff) / 3;
       gps->longitude_fixed   = degree + minutes;
       gps->longitude         = degree / 100000 + minutes * 0.000006F;
       gps->longitudeDegrees  = (gps->longitude - 100 * (int)(gps->longitude / 100)) / 60.0;
@@ -247,16 +247,16 @@ bool parseGPS(struct GPS* gps, char *nmea) {
 }
 
 uint8_t GPSavailable(struct GPS* gps) {
-    return uart_read_byte(gps->gpsSerial, buf);
+  return uart_read_byte(gps->gpsSerial, buf);
 }
 
 char readGPS(struct GPS* gps) {
   char c = 0;
   if (gps->paused) return c;
   uart_read(gps->gpsSerial, buf, 1);
-  
+
   c = (char)buf[0];
-  
+
   if (c == '\n') {
     gps->currentline[gps->lineidx] = 0;
 
