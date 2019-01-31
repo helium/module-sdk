@@ -23,7 +23,7 @@ bool new_event    = false;
 bool gps_event    = false;
 bool button_event = false;
 char message[125];
-unsigned char address[] = "somewhere";
+unsigned char address[] = "1";
 uint8_t buffer [120];
 struct GPS gps;
 
@@ -124,7 +124,6 @@ int main(void) {
           printf("No GPS fix...\r\n");
         }
       }
-      gps_event = false;
     }
     if (button_event) {
       printf("LAT: %f\r\n", gps.latitude);
@@ -140,9 +139,10 @@ int main(void) {
       } else {
         printf("Send Success\r\n");
       }
-      button_event = false;
     }
-    new_event = false;
+    gps_event    = false;
+    button_event = false;
+    new_event    = false;
     led_off(0);
     led_off(1);
   }

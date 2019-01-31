@@ -85,7 +85,6 @@ int main(void) {
     packet_add_data(&temperature, &temperature_data);
 
     packet_t * packet = packet_assemble();
-    printf("sending\r\n");
     int res = rf_send(packet);
     if (res != TOCK_SUCCESS) {
       printf("\r\nSend Fail\r\n");
