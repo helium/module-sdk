@@ -74,7 +74,7 @@ int main(void) {
     printf("Radio init FAIL\r\n");
   }
 
-  timer_every(30000, timer_callback, NULL, &simple_timer);
+  timer_every(5000, timer_callback, NULL, &simple_timer);
 
   while (1) {
     yield_for(&new_event);
@@ -85,7 +85,6 @@ int main(void) {
     packet_add_data(&temperature, &temperature_data);
 
     packet_t * packet = packet_assemble();
-    printf("sending\r\n");
     int res = rf_send(packet);
     if (res != TOCK_SUCCESS) {
       printf("\r\nSend Fail\r\n");
