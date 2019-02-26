@@ -74,7 +74,7 @@ int main(void) {
     printf("Radio init FAIL\r\n");
   }
 
-  timer_every(30000, timer_callback, NULL, &simple_timer);
+  timer_every(5000, timer_callback, NULL, &simple_timer);
 
   while (1) {
     yield_for(&new_event);
