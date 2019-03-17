@@ -1,27 +1,6 @@
-/***********************************
-This is the Adafruit GPS library - the ultimate GPS library
-for the ultimate GPS module!
-
-Tested and works great with the Adafruit Ultimate GPS module
-using MTK33x9 chipset
-    ------> http://www.adafruit.com/products/746
-Pick one up today at the Adafruit electronics shop 
-and help support open source hardware & software! -ada
-
-Adafruit invests time and resources providing this open source code, 
-please support Adafruit and open-source hardware by purchasing 
-products from Adafruit!
-
-Written by Limor Fried/Ladyada  for Adafruit Industries.  
-BSD license, check license.txt for more information
-All text above must be included in any redistribution
-****************************************/
-// Fllybob added lines 34,35 and 40,41 to add 100mHz logging capability 
-
-#ifndef _ADAFRUIT_GPS_H
-#define _ADAFRUIT_GPS_H
 #include <stdint.h>
 #include <stdbool.h>
+
 // different commands to set the update rate from once a second (1 Hz) to 10 times a second (10Hz)
 // Note that these only control the rate at which the position is echoed, to actually speed up the
 // position fix you must also send one of the position fix rate commands below too.
@@ -49,6 +28,7 @@ All text above must be included in any redistribution
 // turn on ALL THE DATA
 #define PMTK_SET_NMEA_OUTPUT_ALLDATA "$PMTK314,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0*28"
 // turn off output
+
 #define PMTK_SET_NMEA_OUTPUT_OFF "$PMTK314,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*28"
 
 // to generate your own sentences, check out the MTK command datasheet and use a checksum calculator
@@ -73,15 +53,14 @@ All text above must be included in any redistribution
 // ask for the release and version
 #define PMTK_Q_RELEASE "$PMTK605*31"
 
-// request for updates on antenna status 
-#define PGCMD_ANTENNA "$PGCMD,33,1*6C" 
-#define PGCMD_NOANTENNA "$PGCMD,33,0*6D" 
+// request for updates on antenna status
+#define PGCMD_ANTENNA "$PGCMD,33,1*6C"
+#define PGCMD_NOANTENNA "$PGCMD,33,0*6D"
 
 // how long to wait when we're looking for a response
 #define MAXWAITSENTENCE 10
 
 struct GPS {
-    uint8_t gpsSerial;
     bool recvdflag;
     bool paused;
     uint8_t lineidx;
@@ -111,13 +90,15 @@ struct GPS {
     int32_t latitude_fixed, longitude_fixed;
     float latitudeDegrees, longitudeDegrees;
     bool inStandbyMode;
+    uint32_t lat_degree;
+    uint32_t lat_minutes;
+    uint32_t lon_degree;
+    uint32_t lon_minutes;
 };
 
 char *lastNMEA(struct GPS*);
 bool newNMEAreceived();
-void GPS_init(struct GPS*, uint8_t);
-
-uint8_t GPSavailable(struct GPS*);
+void GPS_init(struct GPS*);
 
 void sendCommand(struct GPS*, const char *);
 
@@ -141,5 +122,4 @@ bool waitForSentence(struct GPS*, const char *wait);
 
 uint8_t parseResponse(char *response);
 
-#endif
 

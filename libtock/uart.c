@@ -59,10 +59,12 @@ static void internal_callback(int _x __attribute__ ((unused)),
 
 // dummy async callback for synchronous calls
 static bool dummy_fired;
+static uint32_t read_len = 0;
 static void dummy_cb(uint8_t uart_num __attribute__ ((unused)), uint8_t * data __attribute__ (
                        (unused)), uint8_t len __attribute__ (
                        (unused))){
   dummy_fired = true;
+  read_len = len;
 }
 
 int uart_writestr(uint8_t uart_num, const char* buf){
@@ -122,7 +124,7 @@ request_t* allocate_and_initialize_request(cmd_t type, uint8_t uart_num, uint8_t
   request->type = type;
   if (type == READ || no_copy) {
     request->buf = buf;
-  }else {
+  } else {
     uint8_t* out_buf = (uint8_t*) calloc(1, len);
     if (out_buf == NULL) {
       if (!queue_empty) {
@@ -181,11 +183,15 @@ int uart_write_async_unsafe(uint8_t uart_num, uint8_t* buf, size_t len, uart_cb 
 
 int uart_read(uint8_t uart_num, uint8_t* buf, size_t len){
   dummy_fired = false;
-  uart_read_async(uart_num, buf, len, &dummy_cb);
-  // wait for callback
-  yield_for(&dummy_fired);
-
-  return TOCK_SUCCESS;
+  if(TOCK_SUCCESS == uart_read_async(uart_num, buf, len, &dummy_cb)){
+    // wait for callback
+    yield_for(&dummy_fired);
+    return read_len;
+  }
+  else{
+    return 0;
+  }
+  
 }
 int uart_read_async(uint8_t uart_num, uint8_t* buf, size_t len, uart_cb cb){
   request_t* request = allocate_and_initialize_request(READ, uart_num, buf, len, cb, false);

@@ -19,19 +19,16 @@
 #include <uart.h>
 
 // how long are max NMEA lines to parse?
-#define MAXLINELENGTH 120
+#define MAXLINELENGTH 124
 
 // we double buffer: read one line in and leave one for the main program
-char line1[MAXLINELENGTH];
-char line2[MAXLINELENGTH];
 // our index into filling the current line
 // volatile uint8_t lineidx = 0;
 // pointers to the double buffers
-uint8_t buf[120];
+uint8_t buf[MAXLINELENGTH];
 
 bool parseGPS(struct GPS* gps, char *nmea) {
   // do checksum check
-
   // first look if we even have one
   if (nmea[strlen(nmea) - 4] == '*') {
     uint16_t sum = parseHexGPS(nmea[strlen(nmea) - 3]) * 16;
@@ -76,6 +73,8 @@ bool parseGPS(struct GPS* gps, char *nmea) {
       degreebuff[6]         = '\0';
       minutes               = 50 * atol(degreebuff) / 3;
       gps->latitude_fixed   = degree + minutes;
+      gps->lat_degree           = degree;
+      gps->lat_minutes          = minutes;
       gps->latitude         = degree / 100000 + minutes * 0.000006F;
       gps->latitudeDegrees  = (gps->latitude - 100 * (int)(gps->latitude / 100)) / 60.0;
       gps->latitudeDegrees += (int)(gps->latitude / 100);
@@ -103,6 +102,8 @@ bool parseGPS(struct GPS* gps, char *nmea) {
       degreebuff[6] = '\0';
       minutes       = 50 * atol(degreebuff) / 3;
       gps->longitude_fixed   = degree + minutes;
+      gps->lon_degree           = degree;
+      gps->lon_minutes          = minutes;
       gps->longitude         = degree / 100000 + minutes * 0.000006F;
       gps->longitudeDegrees  = (gps->longitude - 100 * (int)(gps->longitude / 100)) / 60.0;
       gps->longitudeDegrees += (int)(gps->longitude / 100);
@@ -159,7 +160,6 @@ bool parseGPS(struct GPS* gps, char *nmea) {
     gps->milliseconds = fmod(timef, 1.0) * 1000;
 
     p = strchr(p, ',') + 1;
-    // Serial.println(p);
     if (p[0] == 'A')
       gps->fix = true;
     else if (p[0] == 'V')
@@ -180,6 +180,8 @@ bool parseGPS(struct GPS* gps, char *nmea) {
       degreebuff[6]         = '\0';
       minutes               = 50 * atol(degreebuff) / 3;
       gps->latitude_fixed   = degree + minutes;
+      gps->lat_degree           = degree;
+      gps->lat_minutes          = minutes;
       gps->latitude         = degree / 100000 + minutes * 0.000006F;
       gps->latitudeDegrees  = (gps->latitude - 100 * (int)(gps->latitude / 100)) / 60.0;
       gps->latitudeDegrees += (int)(gps->latitude / 100);
@@ -207,6 +209,8 @@ bool parseGPS(struct GPS* gps, char *nmea) {
       degreebuff[6] = '\0';
       minutes       = 50 * atol(degreebuff) / 3;
       gps->longitude_fixed   = degree + minutes;
+      gps->lon_degree           = degree;
+      gps->lon_minutes          = minutes;
       gps->longitude         = degree / 100000 + minutes * 0.000006F;
       gps->longitudeDegrees  = (gps->longitude - 100 * (int)(gps->longitude / 100)) / 60.0;
       gps->longitudeDegrees += (int)(gps->longitude / 100);
@@ -246,48 +250,11 @@ bool parseGPS(struct GPS* gps, char *nmea) {
   return false;
 }
 
-uint8_t GPSavailable(struct GPS* gps) {
-  return uart_read_byte(gps->gpsSerial, buf);
-}
-
-char readGPS(struct GPS* gps) {
-  char c = 0;
-  if (gps->paused) return c;
-  uart_read(gps->gpsSerial, buf, 1);
-
-  c = (char)buf[0];
-
-  if (c == '\n') {
-    gps->currentline[gps->lineidx] = 0;
-
-    if (gps->currentline == line1) {
-      gps->currentline = line2;
-      gps->lastline    = line1;
-    } else {
-      gps->currentline = line1;
-      gps->lastline    = line2;
-    }
-
-    gps->lineidx   = 0;
-    gps->recvdflag = true;
-  }
-  gps->currentline[gps->lineidx] = c;
-  gps->lineidx += 1;
-  if (gps->lineidx >= MAXLINELENGTH)
-    gps->lineidx = MAXLINELENGTH - 1;
-
-  return c;
-}
-
 // Initialization code used by all constructor types
-void GPS_init(struct GPS* gps, uint8_t serial_no) {
-  gps->gpsSerial   = serial_no;
+void GPS_init(struct GPS* gps) {
   gps->recvdflag   = false;
   gps->paused      = false;
   gps->lineidx     = 0;
-  gps->currentline = line1;
-  gps->lastline    = line2;
-
   gps->hour = gps->minute = gps->seconds = gps->year = gps->month = gps->day =
                                                                       gps->fixquality = gps->satellites = 0; // uint8_t
   gps->lat = gps->lon = gps->mag = 0; // char
@@ -298,9 +265,7 @@ void GPS_init(struct GPS* gps, uint8_t serial_no) {
                                                                                                             0.0; // float
 }
 
-void sendCommand(struct GPS* gps, const char *str) {
-  uart_writestr(gps->gpsSerial, str);
-}
+
 
 void pauseGPS(struct GPS* gps, bool p) {
   gps->paused = p;
@@ -308,6 +273,7 @@ void pauseGPS(struct GPS* gps, bool p) {
 
 char *lastNMEA(struct GPS* gps) {
   gps->recvdflag = false;
+  printf("%s \r\n", gps->lastline);
   return (char *)gps->lastline;
 }
 
