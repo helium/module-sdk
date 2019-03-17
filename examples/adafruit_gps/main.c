@@ -13,11 +13,24 @@
 #include <timer.h>
 #include <uart.h>
 
+static bool event = false;
 static bool gps_read_fired = false;
+static bool timer_fired = false;
 
 void gps_read_cb(char * newline){
   gps_read_fired = true;
+  event = true;
 }
+
+static void timer_callback( __attribute__ ((unused)) int arg0,
+                            __attribute__ ((unused)) int arg1,
+                            __attribute__ ((unused)) int arg2,
+                            __attribute__ ((unused)) void *ud) {
+  timer_fired = true;
+}
+
+// Timer callback
+tock_timer_t simple_timer;
 
 int main(void) {
   struct GPS gps;
@@ -27,19 +40,28 @@ int main(void) {
   gps_init(&gps_reader, &gps_read_cb);
   GPS_init(&gps);
 
+  timer_every(1000, timer_callback, NULL, &simple_timer);
+
   while(1){
-    yield_for(&gps_read_fired);
-    gps_read_fired = false;
+    yield_for(&event);
+    event = false;
+
+
     while(gps_has_some(&gps_reader)){
       char * line = gps_pop(&gps_reader);
-      printf("%s", line);
       parseGPS(&gps, line);
-
       free(line);
     }
+    delay_ms(10);
 
-    printf_async("%02d:%02d:%02d\r\n", gps.hour, gps.minute, gps.seconds);
-    printf_async("lat: %d lon: %d\r\n", gps.latitude, gps.longitude);
+
+    if(timer_fired){
+      timer_fired = false;
+      printf_async("%02d:%02d:%02d: lat: %d lon: %d\r\n", 
+        gps.hour, gps.minute, gps.seconds, gps.latitudeDegrees, gps.longitudeDegrees);
+    }
+
+
   };
  
   return 0;
