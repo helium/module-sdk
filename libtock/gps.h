@@ -11,11 +11,23 @@ extern "C" {
 // data provides pointer to read buffer
 typedef void (*gps_cb)(char * data);
 
-int gps_init(gps_cb cb);
 
-bool gps_has_some(void);
+typedef struct gps_line {
+  char* buf;
+  struct gps_line* next;
+} gps_line_t;
 
-char* gps_pop(void);
+typedef struct {
+	gps_line_t * head;
+	gps_line_t * tail;
+	gps_cb user_cb;
+} gps_t;
+
+int gps_init(gps_t* gps, gps_cb cb);
+
+bool gps_has_some(gps_t* gps);
+
+char* gps_pop(gps_t* gps);
 
 #ifdef __cplusplus
 }
