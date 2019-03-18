@@ -27,44 +27,48 @@ static rf_req_t *rf_queue = NULL;
 static bool queue_empty   = false;
 int rf_dispatch_request(rf_req_t* req);
 
+bool fired;
+
+
 static void tx_done_callback(int result,
                              __attribute__ ((unused)) int arg2,
                              __attribute__ ((unused)) int arg3,
                              void* completed_request) {
   
-  rf_req_t* cur_req = (rf_req_t*) completed_request;
+ //  rf_req_t* cur_req = (rf_req_t*) completed_request;
 
-  // keep local copy of callback and next item
-  rf_cb cb       = cur_req->user_cb;
-  rf_req_t* next = cur_req->next;
+ //  // keep local copy of callback and next item
+ //  rf_cb cb       = cur_req->user_cb;
+ //  rf_req_t* next = cur_req->next;
 
-  // fire callback
+ //  // fire callback
 
-  if (cb != NULL) {
-	if (cur_req->payload->type == PL_TYPE_PACKETIZER) {
-	  (*cb)(result, cur_req->payload);
-	  // free current request
-	  packet_disassemble(cur_req->payload->packet);
-	  free(cur_req->payload);
-	  free(cur_req);
-	} else if (cur_req->payload->type == PL_TYPE_NONE) {
-	  (*cb)(result, cur_req->payload);
-	  free(cur_req->payload->raw_packet->data);
-	  free(cur_req->payload->packet);
-	  free(cur_req->payload);
-	  free(cur_req);
+ //  if (cb != NULL) {
+	// if (cur_req->payload->type == PL_TYPE_PACKETIZER) {
+	//   (*cb)(result, cur_req->payload);
+	//   // free current request
+	//   // packet_disassemble(cur_req->payload->packet);
+	//   // free(cur_req->payload);
+	//   // free(cur_req);
+	// } else if (cur_req->payload->type == PL_TYPE_NONE) {
+	//   (*cb)(result, cur_req->payload);
+	//   // free(cur_req->payload->raw_packet->data);
+	//   // free(cur_req->payload->packet);
+	//   // free(cur_req->payload);
+	//   // free(cur_req);
 
-	}
-  }
+	// }
+ //  }
   
-  // dispatch next request
-  if (next != NULL) {
-    rf_dispatch_request(next);
-  } else {
-    // eat the tail of the queue
-    rf_queue    = NULL;
-    queue_empty = true;
-  }
+ //  // dispatch next request
+ //  if (next != NULL) {
+ //    rf_dispatch_request(next);
+ //  } else {
+ //    // eat the tail of the queue
+ //    rf_queue    = NULL;
+ //    queue_empty = true;
+ //  }
+  fired = true;
 }
 
 int rf_driver_check(void) {
@@ -194,7 +198,6 @@ int rf_send_raw_async(raw_packet_t* packet, rf_cb cb) {
 }
 // Request Queue
 static int dummy_result;
-bool fired;
 static void dummy_cb(int result, payload_t* req __attribute__ ((unused))){
   dummy_result = result;
   fired        = true;
@@ -216,18 +219,22 @@ int rf_send(packet_t* packet) {
 }
 
 int rf_send_raw(raw_packet_t* packet) {
-  int err;
   fired = false;
-  err	= rf_send_raw_async(packet, &dummy_cb);
-  if (err < 0) {
-	free(packet->data);
-	free(packet);
-	free(rf_queue);
-	rf_queue = NULL;
-	return err;
-  }
+  
+  uint err;
+  err = allow(RF_DRIVER, ALLOW_NUM_W, (void *) packet->data, packet->len);
+  if (err < 0) return err;
 
+  // Subscribe to the transmit callback
+  err = subscribe(RF_DRIVER, SUBSCRIBE_TX,
+          tx_done_callback, (void *) NULL);
+  if (err < 0) return err;
+
+  // Issue the send command and wait for the transmission to be done.
+  err = command(RF_DRIVER, COMMAND_SEND, PL_TYPE_NONE, 0);
+  if (err < 0) return err;
   yield_for(&fired);
-  return dummy_result;
+  //free(packet->data);
+  //free(packet);
 }
 
