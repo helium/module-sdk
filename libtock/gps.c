@@ -32,7 +32,7 @@ static void internal_callback(int _x __attribute__ ((unused)),
   gps->tail = gps_line;
 
   if(gps->user_cb!=NULL){
-    (*gps->user_cb)(&buffer[loc]);
+    (*gps->user_cb)();
   }
 }
 

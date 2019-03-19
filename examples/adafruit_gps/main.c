@@ -4,6 +4,7 @@
 #include <unistd.h>
 
 #include "Adafruit_GPS/Adafruit_GPS.h"
+
 #include <button.h>
 #include <gps.h>
 #include <led.h>
@@ -17,7 +18,9 @@ static bool event = false;
 static bool gps_read_fired = false;
 static bool timer_fired = false;
 
-void gps_read_cb(char * newline){
+void gps_read_cb(void
+  );
+void gps_read_cb(void){
   gps_read_fired = true;
   event = true;
 }
@@ -55,7 +58,7 @@ int main(void) {
   }
 
   uint8_t id = 5;
-  uint16_t seq = 0;
+  uint8_t seq = 0;
 
   timer_every(1000, timer_callback, NULL, &simple_timer);
 
@@ -70,13 +73,11 @@ int main(void) {
       parseGPS(&gps, line);
       free(line);
     }
-    delay_ms(10);
-
 
     if(timer_fired){
       timer_fired = false;
 
-      if(gps.fix) {
+      if(true) {
         raw_packet_t pkt;
         uint8_t buffer[128];
 
@@ -87,8 +88,10 @@ int main(void) {
         uint byte_counter = 0;
         memcpy(buffer, (void*)&id, sizeof(uint8_t));
         byte_counter += sizeof(uint8_t);
-        memcpy(buffer + byte_counter, (void*)&seq, sizeof(uint16_t));
-        byte_counter += sizeof(uint16_t);
+        memcpy(buffer + byte_counter, (void*)&seq, sizeof(uint8_t));
+        byte_counter += sizeof(uint8_t);
+        memcpy(buffer + byte_counter, (void*)&gps.minute, sizeof(uint8_t));
+        byte_counter += sizeof(uint8_t);
         memcpy(buffer + byte_counter, (void*)&lat, sizeof(float));
         byte_counter += sizeof(float);
         memcpy(buffer + byte_counter, (void*)&lon, sizeof(float));
@@ -96,15 +99,19 @@ int main(void) {
         memcpy(buffer + byte_counter, &speed, sizeof(uint8_t));
         byte_counter += sizeof(uint8_t);
         memcpy(buffer + byte_counter, &elevation, sizeof(int16_t));
-        //byte_counter += sizeof(int16_t);
-        //raw_packet_t * pkt = calloc(1, sizeof(raw_packet_t));
 
-        pkt.data = buffer;
-        pkt.len = 14;
         rf_send_raw(&pkt);
+
+        printf_async("%02d:%02d:%02d\t");
+        for(uint i=0; i < 14; i++){
+          printf_async("0%x ", buffer[i]);
+        }
+        printf_async("\r\n");
         seq++;
-        printf_async("%02d:%02d:%02d: lat: %u lon: %u\r\n", 
-         gps.hour, gps.minute, gps.seconds, (uint) gps.latitudeDegrees, (uint) gps.longitudeDegrees);
+        printf_async("   lat: %u lon: %u\r\n", 
+        gps.hour, gps.minute, gps.seconds, (uint) gps.latitudeDegrees, (uint) gps.longitudeDegrees);
+
+
       } else {
         printf_async("%02d:%02d:%02d: no fix\r\n", gps.hour, gps.minute, gps.seconds);
       }

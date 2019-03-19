@@ -209,14 +209,14 @@ int main(void) {
 
     packet_t * packet = packet_assemble();
     packet_pretty_print(packet);
-    int res = rf_send(packet);
+    //int res = rf_send(packet);
 
     packet_count++;
-    if (res != TOCK_SUCCESS) {
-      printf_async("\r\nSend Fail %u\r\n", packet_count);
-    } else {
-      printf_async("\r\nSend Success %u\r\n", packet_count);
-    }
+    // if (res != TOCK_SUCCESS) {
+    //   printf_async("\r\nSend Fail %u\r\n", packet_count);
+    // } else {
+    //   printf_async("\r\nSend Success %u\r\n", packet_count);
+    // }
 
     new_event = false;
     led_off(0);

@@ -9,7 +9,7 @@ extern "C" {
 #define DRIVER_NUM_GPS 0x80005
 
 // data provides pointer to read buffer
-typedef void (*gps_cb)(char * data);
+typedef void (*gps_cb)(void);
 
 
 typedef struct gps_line {
