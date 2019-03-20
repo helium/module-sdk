@@ -41,6 +41,7 @@ int main(void) {
   gps_t gps_reader;
 
   printf("[GPS Demo]\r\n");
+
   gps_init(&gps_reader, &gps_read_cb);
   GPS_init(&gps);
 
@@ -68,8 +69,7 @@ int main(void) {
 
     while(gps_has_some(&gps_reader)){
       char * line = gps_pop(&gps_reader);
-      printf_async(" %s\r", line); 
-
+      //printf_async(" %s\r", line); 
       parseGPS(&gps, line);
       free(line);
     }
@@ -77,9 +77,10 @@ int main(void) {
     if(timer_fired){
       timer_fired = false;
 
-      if(true) {
+      if(gps.fix) {
         raw_packet_t pkt;
-        uint8_t buffer[128];
+        pkt.len = 14;
+        uint8_t buffer[14];
 
         float lat = gps.latitudeDegrees;
         float lon = gps.longitudeDegrees;
@@ -88,9 +89,7 @@ int main(void) {
         uint byte_counter = 0;
         memcpy(buffer, (void*)&id, sizeof(uint8_t));
         byte_counter += sizeof(uint8_t);
-        memcpy(buffer + byte_counter, (void*)&seq, sizeof(uint8_t));
-        byte_counter += sizeof(uint8_t);
-        memcpy(buffer + byte_counter, (void*)&gps.minute, sizeof(uint8_t));
+        memcpy(buffer + byte_counter, (void*)&seq, sizeof(uint16_t));
         byte_counter += sizeof(uint8_t);
         memcpy(buffer + byte_counter, (void*)&lat, sizeof(float));
         byte_counter += sizeof(float);
@@ -99,18 +98,15 @@ int main(void) {
         memcpy(buffer + byte_counter, &speed, sizeof(uint8_t));
         byte_counter += sizeof(uint8_t);
         memcpy(buffer + byte_counter, &elevation, sizeof(int16_t));
+        
 
-        rf_send_raw(&pkt);
 
-        printf_async("%02d:%02d:%02d\t");
+        printf_async("%02d:%02d:%02d\t",  gps.hour, gps.minute, gps.seconds);
         for(uint i=0; i < 14; i++){
           printf_async("0%x ", buffer[i]);
         }
         printf_async("\r\n");
         seq++;
-        printf_async("   lat: %u lon: %u\r\n", 
-        gps.hour, gps.minute, gps.seconds, (uint) gps.latitudeDegrees, (uint) gps.longitudeDegrees);
-
 
       } else {
         printf_async("%02d:%02d:%02d: no fix\r\n", gps.hour, gps.minute, gps.seconds);

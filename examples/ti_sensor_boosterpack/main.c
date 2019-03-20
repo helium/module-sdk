@@ -113,7 +113,7 @@ int main(void) {
   rslt = bme280_port_init(&bme280);
   if (rslt != BME280_OK) {
     printf_async("BME280 Initialization Failed\r\n");
-    while (1) ;
+    //while (1) ;
   }else {
     printf_async("BME280 Initialized\r\n");
   }
@@ -122,7 +122,7 @@ int main(void) {
   rslt = bmi160_port_init(&bmi160);
   if (rslt != BMI160_OK) {
     printf_async("BMI160 Initialization Failed\r\n");
-    while (1) ;
+    //while (1) ;
   }else {
     printf_async("BMI160 Initialized\r\n");
   }
@@ -131,7 +131,7 @@ int main(void) {
   rslt = bmm150_port_init(&bmm150);
   if (rslt != BMM150_OK) {
     printf_async("BMM150 Initialization Failed\r\n");
-    while (1) ;
+    //while (1) ;
   }else {
     printf_async("BMM150 Initialized\r\n");
   }

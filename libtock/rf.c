@@ -222,6 +222,7 @@ int rf_send_raw(raw_packet_t* packet) {
   fired = false;
   
   uint err;
+  printf("sending packet with length %u\r\n",packet->len );
   err = allow(RF_DRIVER, ALLOW_NUM_W, (void *) packet->data, packet->len);
   if (err < 0) return err;
 

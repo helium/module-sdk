@@ -18,8 +18,6 @@ typedef struct gps_line {
 } gps_line_t;
 
 typedef struct {
-	gps_line_t * head;
-	gps_line_t * tail;
 	gps_cb user_cb;
 } gps_t;
 

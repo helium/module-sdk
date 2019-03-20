@@ -8,7 +8,7 @@
 
 #define ALLOW_NUM                 (1)
 #define SUBSCRIBE_NUM             (1)
-#define DRIVER_NUM_I2CMASTER      (0x80040006)
+#define DRIVER_NUM_I2CMASTER      (0x40006)
 
 enum cmd {
   WRITE_CMD = 1,
