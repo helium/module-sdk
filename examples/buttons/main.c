@@ -17,9 +17,11 @@ static void button_callback(int btn_num,
   if (val == 1) {
     led_toggle(btn_num);
   }
+  printf_async("wut");
 }
 
 int main(void) {
+  printf_async("button demo\r\n");
   button_subscribe(button_callback, NULL);
 
   // Enable interrupts on each button.

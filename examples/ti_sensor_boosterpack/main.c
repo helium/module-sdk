@@ -7,6 +7,8 @@
 
 #include "bme280/bme280_port.h"
 #include "bmi160/bmi160_port.h"
+#include "bosch_port/bosch_port.h"
+
 #include "bmm150/bmm150_port.h"
 #include "opt3001/opt3001.h"
 
@@ -85,145 +87,121 @@ int main(void) {
   int8_t rslt;
 
   printf_async("TI Sensor BoosterPack with Rf\r\n");
-  button_subscribe(button_callback, NULL);
 
   // we will serlialize packets as human-readable JSON as ASCII
-  packetizer_init(SER_MODE_JSON);
+  // packetizer_init(SER_MODE_JSON);
 
-  packetizer_add_sensor(&bme280_pressure, "pressure", UINT);
-  packetizer_add_sensor(&bme280_temperature, "temp", INT);
-  packetizer_add_sensor(&bme280_humidity, "humidity", UINT);
+  // packetizer_add_sensor(&bme280_pressure, "pressure", UINT);
+  // packetizer_add_sensor(&bme280_temperature, "temp", INT);
+  // packetizer_add_sensor(&bme280_humidity, "humidity", UINT);
 
-  packetizer_add_sensor(&bmi160_accel_x, "accel.x", INT);
-  packetizer_add_sensor(&bmi160_accel_y, "accel.y", INT);
-  packetizer_add_sensor(&bmi160_accel_z, "accel.z", INT);
+  // packetizer_add_sensor(&bmi160_accel_x, "accel.x", INT);
+  // packetizer_add_sensor(&bmi160_accel_y, "accel.y", INT);
+  // packetizer_add_sensor(&bmi160_accel_z, "accel.z", INT);
 
-  packetizer_add_sensor(&bmm150_gyro_x, "gyro.x", INT);
-  packetizer_add_sensor(&bmm150_gyro_y, "gyro.y", INT);
-  packetizer_add_sensor(&bmm150_gyro_z, "gyro.z", INT);
 
-  packetizer_add_sensor(&opt3001_lux, "lux", INT);
 
-  // Enable interrupts on each button.
-  int count = button_count();
-  for (int i = 0; i < count; i++) {
-    button_enable_interrupt(i);
-  }
-
-  rslt = bme280_port_init(&bme280);
-  if (rslt != BME280_OK) {
-    printf_async("BME280 Initialization Failed\r\n");
-    //while (1) ;
-  }else {
-    printf_async("BME280 Initialized\r\n");
-  }
-  bme280_setup(&bme280);
+  // packetizer_add_sensor(&opt3001_lux, "lux", INT);
 
   rslt = bmi160_port_init(&bmi160);
   if (rslt != BMI160_OK) {
     printf_async("BMI160 Initialization Failed\r\n");
-    //while (1) ;
+    while (1) ;
   }else {
     printf_async("BMI160 Initialized\r\n");
   }
   bmi160_setup(&bmi160);
 
-  rslt = bmm150_port_init(&bmm150);
-  if (rslt != BMM150_OK) {
-    printf_async("BMM150 Initialization Failed\r\n");
-    //while (1) ;
-  }else {
-    printf_async("BMM150 Initialized\r\n");
-  }
-  bmm150_setup(&bmm150);
 
-  // optionally pass custom parameters instead of NULL
-  if (!OPT3001_init(&opt3001, NULL)) {
-    printf_async("OPT3001 Initialization Failed\r\n");
-    while (1) ;
-  }else {
-    printf_async("OPT3001 Initialized\r\n");
-  }
 
-  if (!rf_driver_check()) {
-    printf_async("Driver check OK\r\n");
-  } else {
-    printf_async("Driver check FAIL\r\n");
-  }
+  // // optionally pass custom parameters instead of NULL
+  // if (!OPT3001_init(&opt3001, NULL)) {
+  //   printf_async("OPT3001 Initialization Failed\r\n");
+  //   while (1) ;
+  // }else {
+  //   printf_async("OPT3001 Initialized\r\n");
+  // }
 
-  if (!rf_set_oui(address)) {
-    printf_async("Address set OK\r\n");
-  } else {
-    printf_async("Address set FAIL\r\n");
-  }
+  // if (!rf_driver_check()) {
+  //   printf_async("Driver check OK\r\n");
+  // } else {
+  //   printf_async("Driver check FAIL\r\n");
+  // }
 
-  if (!rf_enable()) {
-    printf_async("Radio init OK\r\n");
-  } else {
-    printf_async("Radio init FAIL\r\n");
-  }
+  // if (!rf_set_oui(address)) {
+  //   printf_async("Address set OK\r\n");
+  // } else {
+  //   printf_async("Address set FAIL\r\n");
+  // }
 
-  timer_every(6000, timer_callback, NULL, &sensor_sample_timer);
+  // if (!rf_enable()) {
+  //   printf_async("Radio init OK\r\n");
+  // } else {
+  //   printf_async("Radio init FAIL\r\n");
+  // }
+  printf_async("Hoo");
 
-  uint packet_count = 0;
-  while (1) {
-    int result;
-    yield_for(&new_event);
+  // timer_every(6000, timer_callback, NULL, &sensor_sample_timer);
 
-    result = bme280_get_sample_forced_mode(&bme280, &bme_data);
-    if (result) {
-      printf_async("BME280 Fail");
-    }else {
-      packet_add_data(&bme280_pressure, &bme_data.pressure);
-      packet_add_data(&bme280_temperature, &bme_data.temperature);
-      packet_add_data(&bme280_humidity, &bme_data.humidity);
-    }
+  // uint packet_count = 0;
+  // while (1) {
+  //   int result;
+  //   yield_for(&new_event);
 
-    result = bmi160_get_sensor_data((BMI160_ACCEL_SEL | BMI160_GYRO_SEL | BMI160_TIME_SEL), &bmi_accel, &bmi_gyro,
-                                    &bmi160);
-    if (result) {
-      printf_async("BMI160 Fail");
-    }else {
-      packet_add_data(&bmi160_accel_x, &bmi_accel.x);
-      packet_add_data(&bmi160_accel_y, &bmi_accel.y);
-      packet_add_data(&bmi160_accel_z, &bmi_accel.z);
-    }
+  //   result = bme280_get_sample_forced_mode(&bme280, &bme_data);
+  //   if (result) {
+  //     printf_async("BME280 Fail");
+  //   }else {
+  //     packet_add_data(&bme280_pressure, &bme_data.pressure);
+  //     packet_add_data(&bme280_temperature, &bme_data.temperature);
+  //     packet_add_data(&bme280_humidity, &bme_data.humidity);
+  //   }
 
-    result = bmm150_read_mag_data(&bmm150);
-    if (result) {
-      printf_async("BMM150 Fail");
-    }else {
-      packet_add_data(&bmm150_gyro_x, &bmm150.data.x);
-      packet_add_data(&bmm150_gyro_y, &bmm150.data.y);
-      packet_add_data(&bmm150_gyro_z, &bmm150.data.z);
-    }
+  //   result = bmi160_get_sensor_data((BMI160_ACCEL_SEL | BMI160_GYRO_SEL | BMI160_TIME_SEL), &bmi_accel, &bmi_gyro,
+  //                                   &bmi160);
+  //   if (result) {
+  //     printf_async("BMI160 Fail");
+  //   }else {
+  //     packet_add_data(&bmi160_accel_x, &bmi_accel.x);
+  //     packet_add_data(&bmi160_accel_y, &bmi_accel.y);
+  //     packet_add_data(&bmi160_accel_z, &bmi_accel.z);
+  //   }
 
-    float lux_data;
-    result = !OPT3001_getLux(&opt3001, &lux_data);
-    if (result) {
-      printf_async("OPT3001 Lux fail");
-    }else {
-      int truncated = (int) lux_data;
-      packet_add_data(&opt3001_lux, &truncated);
-    }
+  //   result = bmm150_read_mag_data(&bmm150);
+  //   if (result) {
+  //     printf_async("BMM150 Fail");
+  //   }else {
+  //     packet_add_data(&bmm150_gyro_x, &bmm150.data.x);
+  //     packet_add_data(&bmm150_gyro_y, &bmm150.data.y);
+  //     packet_add_data(&bmm150_gyro_z, &bmm150.data.z);
+  //   }
 
-    packet_t * packet = packet_assemble();
-    packet_pretty_print(packet);
-    //int res = rf_send(packet);
+  //   float lux_data;
+  //   result = !OPT3001_getLux(&opt3001, &lux_data);
+  //   if (result) {
+  //     printf_async("OPT3001 Lux fail");
+  //   }else {
+  //     int truncated = (int) lux_data;
+  //     packet_add_data(&opt3001_lux, &truncated);
+  //   }
 
-    packet_count++;
-    // if (res != TOCK_SUCCESS) {
-    //   printf_async("\r\nSend Fail %u\r\n", packet_count);
-    // } else {
-    //   printf_async("\r\nSend Success %u\r\n", packet_count);
-    // }
+  //   packet_t * packet = packet_assemble();
+  //   packet_pretty_print(packet);
+  //   //int res = rf_send(packet);
 
-    new_event = false;
-    led_off(0);
-    led_off(1);
-  }
+  //   packet_count++;
+  //   // if (res != TOCK_SUCCESS) {
+  //   //   printf_async("\r\nSend Fail %u\r\n", packet_count);
+  //   // } else {
+  //   //   printf_async("\r\nSend Success %u\r\n", packet_count);
+  //   // }
 
-  return 0;
+  //   new_event = false;
+  //   led_off(0);
+  //   led_off(1);
+  // }
+
+  // return 0;
 }
 
 int8_t bme280_setup(struct bme280_dev *dev)
@@ -303,8 +281,8 @@ int8_t bmm150_port_init(struct bmm150_dev *dev){
   /* Sensor interface over I2C */
   dev->dev_id   = BMM150_I2C_ADDRESS_CSB_HIGH_SDO_HIGH;
   dev->intf     = BMM150_I2C_INTF;
-  dev->read     = user_aux_read;
-  dev->write    = user_aux_write;
+  dev->read     = tock_i2c_read;
+  dev->write    = tock_i2c_write;
   dev->delay_ms = delay_ms;
 
   return bmm150_init(dev);

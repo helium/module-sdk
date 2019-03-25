@@ -1542,13 +1542,10 @@ int8_t bmi160_get_power_mode(struct bmi160_pmu_status *pmu_status, const struct 
 
   /* Null-pointer check */
   if ((dev == NULL) || (dev->delay_ms == NULL)) {
-    printf("NULL!?\r\n");
-
     rslt = BMI160_E_NULL_PTR;
   } else {
     rslt = bmi160_get_regs(BMI160_PMU_STATUS_ADDR, &power_mode, 1, dev);
     if (rslt == BMI160_OK) {
-      printf("getting stuff\r\n");
       /* Power mode of the accel,gyro,aux sensor is obtained */
       pmu_status->aux_pmu_status   = BMI160_GET_BITS_POS_0(power_mode, BMI160_MAG_POWER_MODE);
       pmu_status->gyro_pmu_status  = BMI160_GET_BITS(power_mode, BMI160_GYRO_POWER_MODE);
@@ -1570,6 +1567,7 @@ int8_t bmi160_get_sensor_data(uint8_t select_sensor, struct bmi160_sensor_data *
   uint8_t time_sel;
   uint8_t sen_sel;
   uint8_t len = 0;
+          printf("get sensor data\r\n");
 
   /*Extract the sensor  and time select information*/
   sen_sel  = select_sensor & BMI160_SEN_SEL_MASK;
@@ -1583,10 +1581,14 @@ int8_t bmi160_get_sensor_data(uint8_t select_sensor, struct bmi160_sensor_data *
     switch (sen_sel) {
       case BMI160_ACCEL_ONLY:
         /* Null-pointer check */
-        if (accel == NULL)
+        if (accel == NULL){
+          printf("NULL\r\n");
           rslt = BMI160_E_NULL_PTR;
-        else
+        }
+        else{
+          printf("getting accel\r\n");
           rslt = get_accel_data(len, accel, dev);
+        };
         break;
       case BMI160_GYRO_ONLY:
         /* Null-pointer check */
@@ -1599,8 +1601,10 @@ int8_t bmi160_get_sensor_data(uint8_t select_sensor, struct bmi160_sensor_data *
         /* Null-pointer check */
         if ((gyro == NULL) || (accel == NULL))
           rslt = BMI160_E_NULL_PTR;
-        else
+        else {
+          printf("get both\r\n");
           rslt = get_accel_gyro_data(len, accel, gyro, dev);
+        }
         break;
       default:
         rslt = BMI160_E_INVALID_INPUT;
