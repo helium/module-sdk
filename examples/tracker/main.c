@@ -18,7 +18,7 @@
 
 static bool event = false;
 static bool gps_read_fired = false;
-static bool timer_fired = false;
+static uint timer_fired = 0;
 static bool button_fired = false;
 
 struct bmi160_dev bmi160;
@@ -39,7 +39,7 @@ static void timer_callback( __attribute__ ((unused)) int arg0,
                             __attribute__ ((unused)) int arg1,
                             __attribute__ ((unused)) int arg2,
                             __attribute__ ((unused)) void *ud) {
-  timer_fired = true;
+  timer_fired++;
   event = true;
 }
 
@@ -97,7 +97,7 @@ int main(void) {
   //   button_enable_interrupt(i);
   // }
 
-  uint8_t id = 6;
+  uint8_t id = 37;
   uint16_t seq = 0;
 
   timer_every(1000, timer_callback, NULL, &simple_timer);
@@ -115,7 +115,8 @@ int main(void) {
       }
     }
 
-    if(timer_fired){
+    if(timer_fired == 5){
+        timer_fired = 0;
 
       // rslt = bmi160_get_sensor_data((BMI160_ACCEL_SEL | BMI160_GYRO_SEL | BMI160_TIME_SEL), &bmi_accel, &bmi_gyro,
       //                               &bmi160);
@@ -130,17 +131,16 @@ int main(void) {
       //   printf_async("%i\t", bmi_gyro.y);
       //   printf_async("%i\r\n", bmi_gyro.z);
       // }
+      
 
-      timer_fired = false;
-
-      if(gps.fix) {
+      //if(gps.fix) {
         raw_packet_t pkt;
         uint8_t buffer[14];
         pkt.len = 14;
         pkt.data = &buffer;
 
-        float lat = gps.latitudeDegrees;
-        float lon = gps.longitudeDegrees;
+        float lat = gps.latitude * (gps.lat == 'N' ? 1 : -1);
+        float lon = gps.longitude * (gps.lon == 'E' ? 1 : -1);
         uint8_t speed = (int) gps.speed;
         int16_t elevation = (uint16_t)gps.altitude;
         uint byte_counter = 0;
@@ -158,7 +158,6 @@ int main(void) {
         
         rf_send_raw(&pkt);
 
-
         printf_async("%02d:%02d:%02d\t", gps.hour, gps.minute, gps.seconds);
         for(uint i=0; i < 14; i++){
           printf_async("0%x ", buffer[i]);
@@ -166,10 +165,15 @@ int main(void) {
         printf_async("\r\n");
         seq++;
 
-      } else {
-        printf_async("%02d:%02d:%02d: no fix\r\n", gps.hour, gps.minute, gps.seconds);
-      }
+        led_on(1);
+
+      // } else {
+      //   printf_async("%02d:%02d:%02d: no fix\r\n", gps.hour, gps.minute, gps.seconds);
+      // }
       
+    }
+    else if(timer_fired == 1){
+      led_off(1);
     }
 
     if(button_fired){

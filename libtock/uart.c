@@ -116,6 +116,7 @@ request_t* allocate_and_initialize_request(cmd_t type, uint8_t uart_num, uint8_t
       yield_for(&queue_empty);
       request = (request_t*) calloc(1,sizeof(request_t));
     }else {
+      free(request);
       return NULL;
     }
     if (request == NULL) return NULL;

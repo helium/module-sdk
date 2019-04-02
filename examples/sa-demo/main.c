@@ -81,7 +81,7 @@ int main(void) {
       
       // Read the Atmospheric sensor
       result = bme280_get_sample_forced_mode(&bme280, &bme_data);
-        if (result) {
+      if (result) {
         printf_async("BME280 Fail");
       }else {
         printf_async("BME280 OK");
@@ -149,6 +149,7 @@ int8_t bme280_get_sample_forced_mode(struct bme280_dev *dev, struct bme280_data 
   uint8_t rslt = bme280_set_sensor_mode(BME280_FORCED_MODE, dev);
 
   if (rslt != BME280_OK) {
+    printf("Fail on set sensor mode\r\n");
     return rslt;
   }
 

@@ -75,9 +75,10 @@ bool parseGPS(struct GPS* gps, char *nmea) {
       gps->latitude_fixed   = degree + minutes;
       gps->lat_degree       = degree;
       gps->lat_minutes      = minutes;
-      gps->latitude         = degree / 100000 + minutes * 0.000006F;
+      gps->latitude         = degree / 100000.0 + minutes * 0.000006F;
       gps->latitudeDegrees  = (gps->latitude - 100 * (int)(gps->latitude / 100)) / 60.0;
       gps->latitudeDegrees += (int)(gps->latitude / 100);
+
     }
 
     p = strchr(p, ',') + 1;
