@@ -47,7 +47,8 @@ bool parseGPS(struct GPS* gps, char *nmea) {
   long minutes;
   char degreebuff[10];
   // look for a few common sentences
-  if (strstr(nmea, "$GPGGA")) {
+
+  if (strstr(nmea, "$GPGGA") || strstr(nmea, "$GNGGA")) {
     // found GGA
     char *p = nmea;
     // get time

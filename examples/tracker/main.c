@@ -139,8 +139,8 @@ int main(void) {
         pkt.len = 14;
         pkt.data = &buffer;
 
-        float lat = gps.latitude * (gps.lat == 'N' ? 1 : -1);
-        float lon = gps.longitude * (gps.lon == 'E' ? 1 : -1);
+        float lat = gps.latitudeDegrees;
+        float lon = gps.longitudeDegrees;
         uint8_t speed = (int) gps.speed;
         int16_t elevation = (uint16_t)gps.altitude;
         uint byte_counter = 0;
