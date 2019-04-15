@@ -63,19 +63,23 @@ int main(void) {
 
   printf("[Tracker Demo]\r\n");
 
+  uint32_t device_id;
+  rf_get_device_id(&device_id);
+  printf("Device ID is 0x%x\r\n", device_id);
+
   gps_init(&gps_reader, &gps_read_cb);
   GPS_init(&gps);
   // struct bmi160_sensor_data bmi_accel;
   // struct bmi160_sensor_data bmi_gyro;
 
- /* uint rslt;
+  uint rslt;
   rslt = bmi160_port_init(&bmi160);
   if (rslt != BMI160_OK) {
     printf_async("BMI160 Initialization Failed\r\n");
   }else {
     printf_async("BMI160 Initialized\r\n");
   }
-  bmi160_setup(&bmi160);*/
+  bmi160_setup(&bmi160);
 
   if (!rf_driver_check()) {
     printf("Driver check OK\r\n");
@@ -97,7 +101,6 @@ int main(void) {
   //   button_enable_interrupt(i);
   // }
 
-  uint8_t id = 37;
   uint16_t seq = 0;
 
   timer_every(1000, timer_callback, NULL, &simple_timer);
@@ -144,7 +147,7 @@ int main(void) {
         uint8_t speed = (int) gps.speed;
         int16_t elevation = (uint16_t)gps.altitude;
         uint byte_counter = 0;
-        memcpy(buffer, (void*)&id, sizeof(uint8_t));
+        memcpy(buffer, (void*)&device_id, sizeof(uint8_t));
         byte_counter += sizeof(uint8_t);
         memcpy(buffer + byte_counter, (void*)&seq, sizeof(uint16_t));
         byte_counter += sizeof(uint16_t);
@@ -158,14 +161,17 @@ int main(void) {
         
         rf_send_raw(&pkt);
 
-        printf_async("%02d:%02d:%02d\t", gps.hour, gps.minute, gps.seconds);
+        gps.latitudeDegrees = 0;
+        gps.longitudeDegrees = 0;
+
+        printf_async("   %02d:%02d:%02d\t", gps.hour, gps.minute, gps.seconds);
         for(uint i=0; i < 14; i++){
           printf_async("0%x ", buffer[i]);
         }
         printf_async("\r\n");
         seq++;
 
-        led_on(1);
+        led_on(0);
 
       // } else {
       //   printf_async("%02d:%02d:%02d: no fix\r\n", gps.hour, gps.minute, gps.seconds);
@@ -173,7 +179,7 @@ int main(void) {
       
     }
     else if(timer_fired == 1){
-      led_off(1);
+      led_off(0);
     }
 
     if(button_fired){

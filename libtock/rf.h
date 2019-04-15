@@ -37,6 +37,9 @@ extern "C" {
     int rf_driver_check(void);
 
     int rf_set_oui(unsigned char *address);
+    
+	int rf_get_device_id(uint32_t * device_id);
+
 
     // sends the packet and frees memory allocated to packet
     int rf_send(packet_t* packet);

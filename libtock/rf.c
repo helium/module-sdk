@@ -7,9 +7,13 @@
 #include "tock.h"
 
 #define RF_DRIVER           (0xCC1352)
+
 #define ALLOW_NUM_W             (1)
 #define ALLOW_NUM_C             (2)
-#define SUBSCRIBE_TX            (1)
+
+#define SUBSCRIBE_TX                  (1)
+#define SUBSCRIBE_GET_ADDR            (2)
+
 
 enum cmd {
   COMMAND_DRIVER_CHECK = 0,
@@ -71,6 +75,16 @@ static void tx_done_callback(int result,
   fired = true;
 }
 
+static bool got_addr = false;
+static void get_addr_cb(int result,
+  __attribute__ ((unused)) int arg2,
+  __attribute__ ((unused)) int arg3,
+  void* data) {
+  got_addr = true;
+  uint32_t * device_id = (uint32_t*) data;
+  *device_id = result;
+};
+
 int rf_driver_check(void) {
   return command(RF_DRIVER, COMMAND_DRIVER_CHECK, 0, 0);
 }
@@ -81,9 +95,16 @@ int rf_enable(void) {
 
 int rf_set_oui(unsigned char *address) {
   if (!address) return TOCK_EINVAL;
-  int err = allow(RF_DRIVER, ALLOW_NUM_C, (void *) address, 10);
+  int err = subscribe(RF_DRIVER, SUBSCRIBE_GET_ADDR, 0, 0);
   if (err < 0) return err;
   return command(RF_DRIVER, COMMAND_SET_ADDRESS, 0, 0);
+}
+
+int rf_get_device_id(uint32_t * device_id) {
+  got_addr = false;  
+  int err = subscribe(RF_DRIVER, SUBSCRIBE_GET_ADDR, get_addr_cb, (void *) device_id);
+  if (err < 0) return err;
+  yield_for(&got_addr);
 }
 
 int rf_dispatch_request(rf_req_t* req){
