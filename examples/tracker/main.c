@@ -65,7 +65,9 @@ int main(void) {
 
   uint32_t device_id;
   rf_get_device_id(&device_id);
-  printf("Device ID is 0x%x\r\n", device_id);
+  uint8_t id = (uint8_t) device_id;
+  printf("Device ID is 0x%x - ", device_id);
+  printf("using only bottom byte 0x%x\r\n", id);
 
   gps_init(&gps_reader, &gps_read_cb);
   GPS_init(&gps);
@@ -147,7 +149,7 @@ int main(void) {
         uint8_t speed = (int) gps.speed;
         int16_t elevation = (uint16_t)gps.altitude;
         uint byte_counter = 0;
-        memcpy(buffer, (void*)&device_id, sizeof(uint8_t));
+        memcpy(buffer, (void*)&id, sizeof(uint8_t));
         byte_counter += sizeof(uint8_t);
         memcpy(buffer + byte_counter, (void*)&seq, sizeof(uint16_t));
         byte_counter += sizeof(uint16_t);
@@ -166,7 +168,7 @@ int main(void) {
 
         printf_async("   %02d:%02d:%02d\t", gps.hour, gps.minute, gps.seconds);
         for(uint i=0; i < 14; i++){
-          printf_async("0%x ", buffer[i]);
+          printf_async("%02x ", buffer[i]);
         }
         printf_async("\r\n");
         seq++;
