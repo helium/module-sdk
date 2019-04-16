@@ -61,8 +61,6 @@ int main(void) {
   printf("Battery value is %i mV\r\n", battery_read_mv());
   gps_init(&gps_reader, &gps_read_cb);
   GPS_init(&gps);
-  // struct bmi160_sensor_data bmi_accel;
-  // struct bmi160_sensor_data bmi_gyro;
 
   uint rslt;
   rslt = bmi160_port_init(&bmi160);
@@ -97,7 +95,7 @@ int main(void) {
       char * line = gps_pop(&gps_reader);
       if(line!= NULL){
         parseGPS(&gps, line);
-        printf_async("%s",line);
+        //printf_async("%s",line);
         free(line);
       }
     }
@@ -127,17 +125,17 @@ int main(void) {
       memcpy(buffer + byte_counter, &speed, sizeof(uint8_t));
       byte_counter += sizeof(uint8_t);
       memcpy(buffer + byte_counter, &elevation, sizeof(int16_t));
-      
-      rf_send_raw(&pkt);
 
-      gps.latitudeDegrees = 0;
-      gps.longitudeDegrees = 0;
+      rf_send_raw(&pkt);
 
       printf_async("\t%02d:%02d:%02d\t", gps.hour, gps.minute, gps.seconds);
       for(uint i=0; i < 14; i++){
         printf_async("%02x ", buffer[i]);
       }
       printf_async("\r\n");
+      
+      gps.latitudeDegrees = 0;
+      gps.longitudeDegrees = 0;
       seq++;
 
       led_on(0);

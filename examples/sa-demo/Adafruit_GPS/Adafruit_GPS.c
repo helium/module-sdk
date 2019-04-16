@@ -256,13 +256,12 @@ void GPS_init(struct GPS* gps) {
   gps->paused      = false;
   gps->lineidx     = 0;
   gps->hour = gps->minute = gps->seconds = gps->year = gps->month = gps->day =
-                                                                      gps->fixquality = gps->satellites = 0; // uint8_t
+  gps->fixquality = gps->satellites = 0; // uint8_t
   gps->lat = gps->lon = gps->mag = 0; // char
   gps->fix = false; // boolean
   gps->milliseconds = 0; // uint16_t
   gps->latitude     = gps->longitude = gps->geoidheight = gps->altitude =
-                                                            gps->speed = gps->angle = gps->magvariation = gps->HDOP =
-                                                                                                            0.0; // float
+  gps->speed = gps->angle = gps->magvariation = gps->HDOP = 0.0; // float
 }
 
 
