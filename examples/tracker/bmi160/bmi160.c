@@ -1441,7 +1441,6 @@ int8_t bmi160_init(struct bmi160_dev *dev)
     while ((try--) && (dev->chip_id != BMI160_CHIP_ID)) {
       /* Read chip_id */
       rslt = bmi160_get_regs(BMI160_CHIP_ID_ADDR, &dev->chip_id, 1, dev);
-      printf("%u\r\n", dev->chip_id); 
     }
 
     if ((rslt == BMI160_OK) && (dev->chip_id == BMI160_CHIP_ID)) {

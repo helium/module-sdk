@@ -19,7 +19,6 @@
 static bool event = false;
 static bool gps_read_fired = false;
 static uint timer_fired = 0;
-static bool button_fired = false;
 
 struct bmi160_dev bmi160;
 
@@ -43,16 +42,6 @@ static void timer_callback( __attribute__ ((unused)) int arg0,
   event = true;
 }
 
-// Button Press callback
-
-static void button_callback(int btn_num,
-                            int val,
-                            __attribute__ ((unused)) int arg2,
-                            __attribute__ ((unused)) void *ud) {
-    event = true;
-
-}
-
 // Timer callback
 tock_timer_t simple_timer;
 
@@ -66,9 +55,10 @@ int main(void) {
   uint32_t device_id;
   rf_get_device_id(&device_id);
   uint8_t id = (uint8_t) device_id;
-  printf("Device ID is 0x%x - ", device_id);
-  printf("using only bottom byte 0x%x\r\n", id);
+  printf("Device ID is 0x%x - ", (uint32_t) device_id);
+  printf("using only bottom byte %u\r\n", id);
 
+  printf("Battery value is %i mV\r\n", battery_read_mv());
   gps_init(&gps_reader, &gps_read_cb);
   GPS_init(&gps);
   // struct bmi160_sensor_data bmi_accel;
@@ -95,14 +85,6 @@ int main(void) {
     printf("Radio init FAIL\r\n");
   }
 
-  //button_subscribe(button_callback, &button_fired);
-
-  // // Enable interrupts on each button.
-  // int count = button_count();
-  // for (int i = 0; i < count; i++) {
-  //   button_enable_interrupt(i);
-  // }
-
   uint16_t seq = 0;
 
   timer_every(1000, timer_callback, NULL, &simple_timer);
@@ -121,75 +103,49 @@ int main(void) {
     }
 
     if(timer_fired == 5){
-        timer_fired = 0;
 
-      // rslt = bmi160_get_sensor_data((BMI160_ACCEL_SEL | BMI160_GYRO_SEL | BMI160_TIME_SEL), &bmi_accel, &bmi_gyro,
-      //                               &bmi160);
-      // if (rslt) {
-      //   printf_async("BMI160 Fail");
-      // }else {
-      //   printf_async("%i\t", bmi_accel.x);
-      //   printf_async("%i\t", bmi_accel.y);
-      //   printf_async("%i\r\n", bmi_accel.z);
+      timer_fired = 0;
 
-      //   printf_async("%i\t", bmi_gyro.x);
-      //   printf_async("%i\t", bmi_gyro.y);
-      //   printf_async("%i\r\n", bmi_gyro.z);
-      // }
+      raw_packet_t pkt;
+      uint8_t buffer[14];
+      pkt.len = 14;
+      pkt.data = &buffer;
+
+      float lat = gps.latitudeDegrees;
+      float lon = gps.longitudeDegrees;
+      uint8_t speed = (int) gps.speed;
+      int16_t elevation = (uint16_t)gps.altitude;
+      uint byte_counter = 0;
+      memcpy(buffer, (void*)&id, sizeof(uint8_t));
+      byte_counter += sizeof(uint8_t);
+      memcpy(buffer + byte_counter, (void*)&seq, sizeof(uint16_t));
+      byte_counter += sizeof(uint16_t);
+      memcpy(buffer + byte_counter, (void*)&lat, sizeof(float));
+      byte_counter += sizeof(float);
+      memcpy(buffer + byte_counter, (void*)&lon, sizeof(float));
+      byte_counter += sizeof(float);
+      memcpy(buffer + byte_counter, &speed, sizeof(uint8_t));
+      byte_counter += sizeof(uint8_t);
+      memcpy(buffer + byte_counter, &elevation, sizeof(int16_t));
       
+      rf_send_raw(&pkt);
 
-      //if(gps.fix) {
-        raw_packet_t pkt;
-        uint8_t buffer[14];
-        pkt.len = 14;
-        pkt.data = &buffer;
+      gps.latitudeDegrees = 0;
+      gps.longitudeDegrees = 0;
 
-        float lat = gps.latitudeDegrees;
-        float lon = gps.longitudeDegrees;
-        uint8_t speed = (int) gps.speed;
-        int16_t elevation = (uint16_t)gps.altitude;
-        uint byte_counter = 0;
-        memcpy(buffer, (void*)&id, sizeof(uint8_t));
-        byte_counter += sizeof(uint8_t);
-        memcpy(buffer + byte_counter, (void*)&seq, sizeof(uint16_t));
-        byte_counter += sizeof(uint16_t);
-        memcpy(buffer + byte_counter, (void*)&lat, sizeof(float));
-        byte_counter += sizeof(float);
-        memcpy(buffer + byte_counter, (void*)&lon, sizeof(float));
-        byte_counter += sizeof(float);
-        memcpy(buffer + byte_counter, &speed, sizeof(uint8_t));
-        byte_counter += sizeof(uint8_t);
-        memcpy(buffer + byte_counter, &elevation, sizeof(int16_t));
-        
-        rf_send_raw(&pkt);
+      printf_async("\t%02d:%02d:%02d\t", gps.hour, gps.minute, gps.seconds);
+      for(uint i=0; i < 14; i++){
+        printf_async("%02x ", buffer[i]);
+      }
+      printf_async("\r\n");
+      seq++;
 
-        gps.latitudeDegrees = 0;
-        gps.longitudeDegrees = 0;
-
-        printf_async("   %02d:%02d:%02d\t", gps.hour, gps.minute, gps.seconds);
-        for(uint i=0; i < 14; i++){
-          printf_async("%02x ", buffer[i]);
-        }
-        printf_async("\r\n");
-        seq++;
-
-        led_on(0);
-
-      // } else {
-      //   printf_async("%02d:%02d:%02d: no fix\r\n", gps.hour, gps.minute, gps.seconds);
-      // }
+      led_on(0);
       
     }
     else if(timer_fired == 1){
       led_off(0);
     }
-
-    if(button_fired){
-      button_fired = false;
-      printf("Button fired!\r\n");
-    }
-
-
   };
  
   return 0;
