@@ -63,13 +63,6 @@ int main(void) {
   GPS_init(&gps);
 
   uint rslt;
-  rslt = bmi160_port_init(&bmi160);
-  if (rslt != BMI160_OK) {
-    printf_async("BMI160 Initialization Failed\r\n");
-  }else {
-    printf_async("BMI160 Initialized\r\n");
-  }
-  bmi160_setup(&bmi160);
 
   if (!rf_driver_check()) {
     printf("Driver check OK\r\n");
@@ -85,7 +78,7 @@ int main(void) {
 
   uint16_t seq = 0;
 
-  timer_every(1000, timer_callback, NULL, &simple_timer);
+  timer_every(200, timer_callback, NULL, &simple_timer);
 
   while(1){
     yield_for(&event);
@@ -95,10 +88,11 @@ int main(void) {
       char * line = gps_pop(&gps_reader);
       if(line!= NULL){
         parseGPS(&gps, line);
-        //printf_async("%s",line);
+        printf_async("%s",line);
         free(line);
       }
     }
+
 
     if(timer_fired == 5){
 
@@ -126,14 +120,16 @@ int main(void) {
       byte_counter += sizeof(uint8_t);
       memcpy(buffer + byte_counter, &elevation, sizeof(int16_t));
 
-      rf_send_raw(&pkt);
+      //rf_send_raw(&pkt);
 
       printf_async("\t%02d:%02d:%02d\t", gps.hour, gps.minute, gps.seconds);
       for(uint i=0; i < 14; i++){
         printf_async("%02x ", buffer[i]);
       }
-      printf_async("\r\n");
+
+      printf_async("%u\r\n", seq);
       
+
       gps.latitudeDegrees = 0;
       gps.longitudeDegrees = 0;
       seq++;
