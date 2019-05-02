@@ -37,18 +37,23 @@ int main(void) {
     printf("Radio init FAIL\r\n");
   }
 
-  timer_every(5000, timer_callback, NULL, &simple_timer);
+  timer_every(2000, timer_callback, NULL, &simple_timer);
 
   while (1) {
     yield_for(&new_event);
 
+	const char * message = "secretmessage";
+
     raw_packet_t * pkt = calloc(1, sizeof(raw_packet_t));
-    pkt->data = malloc(8);
-    pkt->len = 8;
+	pkt->data = malloc(13);
+    pkt->len = 13;
+	for (int i=0; i<strlen(message); i++) {
+	  pkt->data[i] = message[i];
+	}
     printf("sending\r\n");
     int res = rf_send_raw(pkt);
     printf("sent\r\n");
-
+	new_event = false;
   }
 
   return 0;

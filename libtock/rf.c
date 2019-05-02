@@ -255,7 +255,7 @@ int rf_send_raw(raw_packet_t* packet) {
   err = command(RF_DRIVER, COMMAND_SEND, PL_TYPE_NONE, 0);
   if (err < 0) return err;
   yield_for(&fired);
-  //free(packet->data);
-  //free(packet);
+  free(packet->data);
+  free(packet);
 }
 
