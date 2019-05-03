@@ -2452,6 +2452,9 @@ int8_t bmi160_get_int_status(enum bmi160_int_status_sel int_status_sel,
       rslt = bmi160_get_regs(BMI160_INT_STATUS_ADDR + 3, &int_status->data[3], 1, dev);
   }
 
+  uint8_t zeros[2] = {0, 0};
+  bmi160_set_regs(BMI160_INT_DATA_0_ADDR, zeros, 2, dev);
+  bmi160_set_regs(BMI160_INT_DATA_1_ADDR, zeros, 2, dev);
   return rslt;
 }
 

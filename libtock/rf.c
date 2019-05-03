@@ -9,7 +9,7 @@
 #define RF_DRIVER           (0xCC1352)
 
 #define ALLOW_NUM_W             (1)
-#define ALLOW_NUM_C             (2)
+//#define ALLOW_NUM_C             (2)
 
 #define SUBSCRIBE_TX                  (1)
 #define SUBSCRIBE_GET_ADDR            (2)
@@ -34,10 +34,10 @@ int rf_dispatch_request(rf_req_t* req);
 bool fired;
 
 
-static void tx_done_callback(int result,
+static void tx_done_callback(__attribute__ ((unused)) int result,
                              __attribute__ ((unused)) int arg2,
                              __attribute__ ((unused)) int arg3,
-                             void* completed_request) {
+                             __attribute__ ((unused)) void* completed_request) {
   
  //  rf_req_t* cur_req = (rf_req_t*) completed_request;
 
@@ -105,6 +105,7 @@ int rf_get_device_id(uint32_t * device_id) {
   int err = subscribe(RF_DRIVER, SUBSCRIBE_GET_ADDR, get_addr_cb, (void *) device_id);
   if (err < 0) return err;
   yield_for(&got_addr);
+  return TOCK_SUCCESS;
 }
 
 int rf_dispatch_request(rf_req_t* req){
@@ -242,20 +243,21 @@ int rf_send(packet_t* packet) {
 int rf_send_raw(raw_packet_t* packet) {
   fired = false;
   
-  uint err;
+  int err;
   err = allow(RF_DRIVER, ALLOW_NUM_W, (void *) packet->data, packet->len);
-  if (err < 0) return err;
+  if (err < TOCK_SUCCESS) return err;
 
   // Subscribe to the transmit callback
   err = subscribe(RF_DRIVER, SUBSCRIBE_TX,
           tx_done_callback, (void *) NULL);
-  if (err < 0) return err;
+  if (err < TOCK_SUCCESS) return err;
 
   // Issue the send command and wait for the transmission to be done.
   err = command(RF_DRIVER, COMMAND_SEND, PL_TYPE_NONE, 0);
-  if (err < 0) return err;
+  if (err < TOCK_SUCCESS) return err;
   yield_for(&fired);
-  free(packet->data);
-  free(packet);
+  //free(packet->data);
+  //free(packet);
+  return TOCK_SUCCESS;
 }
 
