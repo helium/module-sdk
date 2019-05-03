@@ -6,7 +6,7 @@
 extern "C" {
 #endif
 
-int battery_read_mv();
+int battery_read_mv(void);
 
 #ifdef __cplusplus
 }

@@ -136,8 +136,8 @@ int main(void) {
       led_on(SLEEP_LED);
     }
 
-    while(gps_has_some(&gps_reader)){
-      char * line = gps_pop(&gps_reader);
+    while(gps_has_some()){
+      char * line = gps_pop();
       if(line!= NULL){
         parseGPS(&gps, line);
         printf_async("%s",line);
@@ -145,14 +145,44 @@ int main(void) {
       }
     }
 
-    if(timer_fired == 5){
+    if(timer_fired >= 5){
       if(no_motion_counter <= SLEEP_THRESHOLD){
         no_motion_counter++;
 
         timer_fired = 0;
 
+        raw_packet_t pkt;
         uint8_t buffer[14];
+        pkt.len = 14;
+        pkt.data = buffer;
 
+        float lat = gps.latitudeDegrees;
+        float lon = gps.longitudeDegrees;
+        uint8_t speed = (int) gps.speed;
+        int16_t elevation = (uint16_t)gps.altitude;
+        uint byte_counter = 0;
+        memcpy(buffer, (void*)&id, sizeof(uint8_t));
+        byte_counter += sizeof(uint8_t);
+        memcpy(buffer + byte_counter, (void*)&seq, sizeof(uint16_t));
+        byte_counter += sizeof(uint16_t);
+        memcpy(buffer + byte_counter, (void*)&lat, sizeof(float));
+        byte_counter += sizeof(float);
+        memcpy(buffer + byte_counter, (void*)&lon, sizeof(float));
+        byte_counter += sizeof(float);
+        memcpy(buffer + byte_counter, &speed, sizeof(uint8_t));
+        byte_counter += sizeof(uint8_t);
+        memcpy(buffer + byte_counter, &elevation, sizeof(int16_t));
+
+        rf_send_raw(&pkt);
+
+        // printf_async("\t%02d:%02d:%02d\t", gps.hour, gps.minute, gps.seconds);
+        // for(uint i=0; i < 14; i++){
+        //   printf_async("%02x ", buffer[i]);
+        // }
+        // printf_async("\r\n");
+
+/*       
+        uint8_t buffer[14];
         raw_packet_t pkt = {
           .data = buffer,
           .len = 0
@@ -177,13 +207,14 @@ int main(void) {
         memcpy(buffer + pkt.len, &elevation, sizeof(int16_t));
 
 
-        printf_async("\r\n\t%02d:%02d:%02d\t", gps.hour, gps.minute, gps.seconds);
-        for(uint i=0; i < pkt.len; i++){
-          printf_async("%02x ", buffer[i]);
-        }
-        printf_async("\r\n");
+        // printf_async("\r\n\t%02d:%02d:%02d\t", gps.hour, gps.minute, gps.seconds);
+        // for(uint i=0; i < pkt.len; i++){
+        //   printf_async("%02x ", buffer[i]);
+        // }
+        // printf_async("\r\n");
 
         rf_send_raw(&pkt);
+*/
 
         
         gps.latitudeDegrees = 0;
@@ -195,6 +226,8 @@ int main(void) {
       if (no_motion_counter == SLEEP_THRESHOLD){
         printf("no move!\r\n");
         led_off(SLEEP_LED);
+        led_off(SEND_LED);
+
         gps_sleep();
       }
     }

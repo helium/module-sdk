@@ -23,13 +23,12 @@ typedef struct {
 
 int gps_init(gps_t* gps, gps_cb cb);
 
-bool gps_has_some(gps_t* gps);
+bool gps_has_some(void);
+char* gps_pop(void);
 
-int gps_wake();
-int gps_sleep();
+int gps_wake(void);
+int gps_sleep(void);
 
-
-char* gps_pop(gps_t* gps);
 
 #ifdef __cplusplus
 }
