@@ -5,7 +5,9 @@
 #include "gps.h"
 
 typedef enum {
-  READLINE = 1 
+  READLINE = 1,
+  WAKE = 2,
+  SLEEP = 3,
 } cmd_t;
 
 #define BUFFER_SIZE (512)
@@ -65,4 +67,12 @@ char* gps_pop(gps_t* gps){
   }
   char * ret = cur->buf;
   return ret;
+}
+
+
+int gps_wake(){
+  return command(DRIVER_NUM_GPS, WAKE, 0, 0);
+}
+int gps_sleep(){
+  return command(DRIVER_NUM_GPS, SLEEP, 0, 0);
 }

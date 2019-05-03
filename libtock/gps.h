@@ -25,6 +25,10 @@ int gps_init(gps_t* gps, gps_cb cb);
 
 bool gps_has_some(gps_t* gps);
 
+int gps_wake();
+int gps_sleep();
+
+
 char* gps_pop(gps_t* gps);
 
 #ifdef __cplusplus

@@ -21,15 +21,6 @@ static bool event = false;
 static bool gps_read_fired = false;
 static uint timer_fired = 0;
 static bool button_fired = false;
-static bool in_motion = true;
-
-typedef enum {
-  NOT_CONFIGURED,
-  MOTION,
-  NO_MOTION
-} bmi_interrupt_t;
-
-static bmi_interrupt_t motion_int = NOT_CONFIGURED;
 
 struct bmi160_dev bmi160;
 
@@ -40,6 +31,8 @@ int8_t bmi160_get_all_with_time(struct bmi160_dev *sensor, struct bmi160_sensor_
 
 int8_t set_no_motion_int(struct bmi160_dev *sensor);
 int8_t set_motion_int(struct bmi160_dev *sensor);
+int8_t disable_motion_int(struct bmi160_dev *sensor);
+int8_t disable_no_motion_int(struct bmi160_dev *sensor);
 
 void gps_read_cb(void
   );
@@ -66,14 +59,15 @@ static void button_callback(__attribute__ ((unused)) int btn_num,
                             __attribute__ ((unused)) void *ud) {
   
   button_fired = true;
-  // if (val == 1) {
-  //   led_toggle(1);
-  // }
   event = true;
 }
 
 // Timer callback
 tock_timer_t simple_timer;
+
+#define SLEEP_LED 0
+#define SEND_LED  1
+#define SLEEP_THRESHOLD 60
 
 int main(void) {
   struct GPS gps;
@@ -116,10 +110,12 @@ int main(void) {
     printf_async("BMI160 Initialized. Address %u\r\n", data);
   }
   bmi160_setup(&bmi160);
-  set_no_motion_int(&bmi160);
+  set_motion_int(&bmi160);
+  //set_no_motion_int(&bmi160);
 
   uint16_t seq = 0;
 
+  int16_t no_motion_counter = 0;
   timer_every(200, timer_callback, NULL, &simple_timer);
 
   while(1){
@@ -127,7 +123,17 @@ int main(void) {
     event = false;
 
     if(button_fired){
-      printf_async("Interrupt or Button fired\r\n");
+      button_fired = false;
+
+      union bmi160_int_status interrupt;
+      enum bmi160_int_status_sel int_status_sel;
+
+      /* Interrupt status selection to read all interrupts */
+      int_status_sel = BMI160_INT_STATUS_ALL;
+      rslt = bmi160_get_int_status(int_status_sel, &interrupt, &bmi160);
+      no_motion_counter = 0;
+      gps_wake();
+      led_on(SLEEP_LED);
     }
 
     while(gps_has_some(&gps_reader)){
@@ -139,54 +145,61 @@ int main(void) {
       }
     }
 
-
     if(timer_fired == 5){
+      if(no_motion_counter <= SLEEP_THRESHOLD){
+        no_motion_counter++;
 
-      timer_fired = 0;
+        timer_fired = 0;
 
-      uint8_t buffer[14];
+        uint8_t buffer[14];
 
-      raw_packet_t pkt = {
-        .data = buffer,
-        .len = 0
-      };
-      
+        raw_packet_t pkt = {
+          .data = buffer,
+          .len = 0
+        };
+        
 
-      float lat = gps.latitudeDegrees;
-      float lon = gps.longitudeDegrees;
-      uint8_t speed = (int) gps.speed;
-      int16_t elevation = (uint16_t)gps.altitude;
+        float lat = gps.latitudeDegrees;
+        float lon = gps.longitudeDegrees;
+        uint8_t speed = (int) gps.speed;
+        int16_t elevation = (uint16_t)gps.altitude;
 
-      memcpy(buffer, (void*)&id, sizeof(uint8_t));
-      pkt.len += sizeof(uint8_t);
-      memcpy(buffer + pkt.len, (void*)&seq, sizeof(uint16_t));
-      pkt.len += sizeof(uint16_t);
-      memcpy(buffer + pkt.len, (void*)&lat, sizeof(float));
-      pkt.len += sizeof(float);
-      memcpy(buffer + pkt.len, (void*)&lon, sizeof(float));
-      pkt.len += sizeof(float);
-      memcpy(buffer + pkt.len, &speed, sizeof(uint8_t));
-      pkt.len += sizeof(uint8_t);
-      memcpy(buffer + pkt.len, &elevation, sizeof(int16_t));
+        memcpy(buffer, (void*)&id, sizeof(uint8_t));
+        pkt.len += sizeof(uint8_t);
+        memcpy(buffer + pkt.len, (void*)&seq, sizeof(uint16_t));
+        pkt.len += sizeof(uint16_t);
+        memcpy(buffer + pkt.len, (void*)&lat, sizeof(float));
+        pkt.len += sizeof(float);
+        memcpy(buffer + pkt.len, (void*)&lon, sizeof(float));
+        pkt.len += sizeof(float);
+        memcpy(buffer + pkt.len, &speed, sizeof(uint8_t));
+        pkt.len += sizeof(uint8_t);
+        memcpy(buffer + pkt.len, &elevation, sizeof(int16_t));
 
-      //rf_send_raw(&pkt);
 
-      printf_async("\t%02d:%02d:%02d\t", gps.hour, gps.minute, gps.seconds);
-      for(uint i=0; i < pkt.len; i++){
-        printf_async("%02x ", buffer[i]);
+        printf_async("\r\n\t%02d:%02d:%02d\t", gps.hour, gps.minute, gps.seconds);
+        for(uint i=0; i < pkt.len; i++){
+          printf_async("%02x ", buffer[i]);
+        }
+        printf_async("\r\n");
+
+        rf_send_raw(&pkt);
+
+        
+        gps.latitudeDegrees = 0;
+        gps.longitudeDegrees = 0;
+        seq++;
+        led_on(SEND_LED);
+
       }
-      printf_async("\r\n");
-      
-
-      gps.latitudeDegrees = 0;
-      gps.longitudeDegrees = 0;
-      seq++;
-
-      led_on(0);
-      
+      if (no_motion_counter == SLEEP_THRESHOLD){
+        printf("no move!\r\n");
+        led_off(SLEEP_LED);
+        gps_sleep();
+      }
     }
     else if(timer_fired == 1){
-      led_off(0);
+        led_off(SEND_LED);
     }
   };
  
@@ -200,50 +213,22 @@ int8_t set_motion_int(struct bmi160_dev *sensor){
   int_config.int_channel = BMI160_INT_CHANNEL_1;// Interrupt channel/pin 1
 
   /* Select the Interrupt type */
-  int_config.int_type = BMI160_ACC_ANY_MOTION_INT;// Choosing Any motion interrupt
+  int_config.int_type = BMI160_ACC_SIG_MOTION_INT;// Choosing Any motion interrupt
   /* Select the interrupt channel/pin settings */
   int_config.int_pin_settg.output_en = BMI160_ENABLE;// Enabling interrupt pins to act as output pin
   int_config.int_pin_settg.output_mode = BMI160_DISABLE;// Choosing push-pull mode for interrupt pin
   int_config.int_pin_settg.output_type = BMI160_ENABLE;// Choosing active low output
   int_config.int_pin_settg.edge_ctrl = BMI160_ENABLE;// Choosing edge triggered output
   int_config.int_pin_settg.input_en = BMI160_DISABLE;// Disabling interrupt pin to act as input
-  int_config.int_pin_settg.latch_dur = BMI160_LATCH_DUR_NONE;// non-latched output
+  int_config.int_pin_settg.latch_dur = BMI160_LATCH_DUR_160_MILLI_SEC;//BMI160_LATCHED;// non-latched output
 
   /* Select the Any-motion interrupt parameters */
-  int_config.int_type_cfg.acc_any_motion_int.anymotion_en = BMI160_ENABLE;// 1- Enable the any-motion, 0- disable any-motion 
-  int_config.int_type_cfg.acc_any_motion_int.anymotion_x = BMI160_ENABLE;// Enabling x-axis for any motion interrupt
-  int_config.int_type_cfg.acc_any_motion_int.anymotion_y = BMI160_ENABLE;// Enabling y-axis for any motion interrupt
-  int_config.int_type_cfg.acc_any_motion_int.anymotion_z = BMI160_ENABLE;// Enabling z-axis for any motion interrupt
-  int_config.int_type_cfg.acc_any_motion_int.anymotion_dur = 0;// any-motion duration
-  int_config.int_type_cfg.acc_any_motion_int.anymotion_thr = 20;// (2-g range) -> (slope_thr) * 3.91 mg, (4-g range) -> (slope_thr) * 7.81 mg, (8-g range) ->(slope_thr) * 15.63 mg, (16-g range) -> (slope_thr) * 31.25 mg 
+  int_config.int_type_cfg.acc_sig_motion_int.sig_en = 1;
+  int_config.int_type_cfg.acc_sig_motion_int.sig_mot_skip = 0x0;
+  int_config.int_type_cfg.acc_sig_motion_int.sig_mot_proof = 0x01;
+  int_config.int_type_cfg.acc_sig_motion_int.sig_data_src = 0;
+  int_config.int_type_cfg.acc_sig_motion_int.sig_mot_thres = 10;
 
-  /* Set the Any-motion interrupt */
-  return bmi160_set_int_config(&int_config, sensor); /* sensor is an instance of the structure bmi160_dev  */
-}
-
-int8_t set_no_motion_int(struct bmi160_dev *sensor){
-  struct bmi160_int_settg int_config;
-
-  /* Select the Interrupt channel/pin */
-  int_config.int_channel = BMI160_INT_CHANNEL_1;// Interrupt channel/pin 1
-
-  /* Select the Interrupt type */
-  int_config.int_type = BMI160_ACC_SLOW_NO_MOTION_INT;// Choosing Any motion interrupt
-  /* Select the interrupt channel/pin settings */
-  int_config.int_pin_settg.output_en = BMI160_ENABLE;// Enabling interrupt pins to act as output pin
-  int_config.int_pin_settg.output_mode = BMI160_DISABLE;// Choosing push-pull mode for interrupt pin
-  int_config.int_pin_settg.output_type = BMI160_ENABLE;// Choosing active low output
-  int_config.int_pin_settg.edge_ctrl = BMI160_ENABLE;// Choosing edge triggered output
-  int_config.int_pin_settg.input_en = BMI160_DISABLE;// Disabling interrupt pin to act as input
-  int_config.int_pin_settg.latch_dur = BMI160_LATCH_DUR_NONE;// non-latched output
-
-  /* Select the Any-motion interrupt parameters */
-  int_config.int_type_cfg.acc_any_motion_int.anymotion_en = BMI160_ENABLE;// 1- Enable the any-motion, 0- disable any-motion 
-  int_config.int_type_cfg.acc_any_motion_int.anymotion_x = BMI160_ENABLE;// Enabling x-axis for any motion interrupt
-  int_config.int_type_cfg.acc_any_motion_int.anymotion_y = BMI160_ENABLE;// Enabling y-axis for any motion interrupt
-  int_config.int_type_cfg.acc_any_motion_int.anymotion_z = BMI160_ENABLE;// Enabling z-axis for any motion interrupt
-  int_config.int_type_cfg.acc_any_motion_int.anymotion_dur = 0;// any-motion duration
-  int_config.int_type_cfg.acc_any_motion_int.anymotion_thr = 20;// (2-g range) -> (slope_thr) * 3.91 mg, (4-g range) -> (slope_thr) * 7.81 mg, (8-g range) ->(slope_thr) * 15.63 mg, (16-g range) -> (slope_thr) * 31.25 mg 
 
   /* Set the Any-motion interrupt */
   return bmi160_set_int_config(&int_config, sensor); /* sensor is an instance of the structure bmi160_dev  */
