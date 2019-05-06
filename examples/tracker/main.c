@@ -99,18 +99,18 @@ int main(void) {
     printf("Radio init FAIL\r\n");
   } 
 
-  int8_t rslt = bmi160_port_init(&bmi160);
-  uint8_t data;
-  uint16_t len = 1;
-  rslt = bmi160_get_regs(BMI160_CHIP_ID_ADDR, &data, len, &bmi160);
-  if (rslt != BMI160_OK) {
-    printf_async("BMI160 Initialization Failed\r\n");
-    while (1) ;
-  }else {
-    printf_async("BMI160 Initialized. Address %u\r\n", data);
-  }
-  bmi160_setup(&bmi160);
-  set_motion_int(&bmi160);
+  // int8_t rslt = bmi160_port_init(&bmi160);
+  // uint8_t data;
+  // uint16_t len = 1;
+  // rslt = bmi160_get_regs(BMI160_CHIP_ID_ADDR, &data, len, &bmi160);
+  // if (rslt != BMI160_OK) {
+  //   printf_async("BMI160 Initialization Failed\r\n");
+  //   while (1) ;
+  // }else {
+  //   printf_async("BMI160 Initialized. Address %u\r\n", data);
+  // }
+  // bmi160_setup(&bmi160);
+  // set_motion_int(&bmi160);
   //set_no_motion_int(&bmi160);
 
   uint16_t seq = 0;
@@ -122,19 +122,19 @@ int main(void) {
     yield_for(&event);
     event = false;
 
-    if(button_fired){
-      button_fired = false;
+    // if(button_fired){
+    //   button_fired = false;
 
-      union bmi160_int_status interrupt;
-      enum bmi160_int_status_sel int_status_sel;
+    //   union bmi160_int_status interrupt;
+    //   enum bmi160_int_status_sel int_status_sel;
 
-      /* Interrupt status selection to read all interrupts */
-      int_status_sel = BMI160_INT_STATUS_ALL;
-      rslt = bmi160_get_int_status(int_status_sel, &interrupt, &bmi160);
-      no_motion_counter = 0;
-      gps_wake();
-      led_on(SLEEP_LED);
-    }
+    //    Interrupt status selection to read all interrupts 
+    //   int_status_sel = BMI160_INT_STATUS_ALL;
+    //   rslt = bmi160_get_int_status(int_status_sel, &interrupt, &bmi160);
+    //   no_motion_counter = 0;
+    //   gps_wake();
+    //   led_on(SLEEP_LED);
+    // }
 
     while(gps_has_some()){
       char * line = gps_pop();
@@ -146,7 +146,7 @@ int main(void) {
     }
 
     if(timer_fired >= 5){
-      if(no_motion_counter <= SLEEP_THRESHOLD){
+      //if(no_motion_counter <= SLEEP_THRESHOLD){
         no_motion_counter++;
 
         timer_fired = 0;
@@ -174,62 +174,19 @@ int main(void) {
         memcpy(buffer + byte_counter, &elevation, sizeof(int16_t));
 
         rf_send_raw(&pkt);
-
-        // printf_async("\t%02d:%02d:%02d\t", gps.hour, gps.minute, gps.seconds);
-        // for(uint i=0; i < 14; i++){
-        //   printf_async("%02x ", buffer[i]);
-        // }
-        // printf_async("\r\n");
-
-/*       
-        uint8_t buffer[14];
-        raw_packet_t pkt = {
-          .data = buffer,
-          .len = 0
-        };
-        
-
-        float lat = gps.latitudeDegrees;
-        float lon = gps.longitudeDegrees;
-        uint8_t speed = (int) gps.speed;
-        int16_t elevation = (uint16_t)gps.altitude;
-
-        memcpy(buffer, (void*)&id, sizeof(uint8_t));
-        pkt.len += sizeof(uint8_t);
-        memcpy(buffer + pkt.len, (void*)&seq, sizeof(uint16_t));
-        pkt.len += sizeof(uint16_t);
-        memcpy(buffer + pkt.len, (void*)&lat, sizeof(float));
-        pkt.len += sizeof(float);
-        memcpy(buffer + pkt.len, (void*)&lon, sizeof(float));
-        pkt.len += sizeof(float);
-        memcpy(buffer + pkt.len, &speed, sizeof(uint8_t));
-        pkt.len += sizeof(uint8_t);
-        memcpy(buffer + pkt.len, &elevation, sizeof(int16_t));
-
-
-        // printf_async("\r\n\t%02d:%02d:%02d\t", gps.hour, gps.minute, gps.seconds);
-        // for(uint i=0; i < pkt.len; i++){
-        //   printf_async("%02x ", buffer[i]);
-        // }
-        // printf_async("\r\n");
-
-        rf_send_raw(&pkt);
-*/
-
         
         gps.latitudeDegrees = 0;
         gps.longitudeDegrees = 0;
         seq++;
         led_on(SEND_LED);
 
-      }
-      if (no_motion_counter == SLEEP_THRESHOLD){
-        printf("no move!\r\n");
-        led_off(SLEEP_LED);
-        led_off(SEND_LED);
-
-        gps_sleep();
-      }
+      //}
+      // if (no_motion_counter == SLEEP_THRESHOLD){
+      //   printf("no move!\r\n");
+      //   led_off(SLEEP_LED);
+      //   led_off(SEND_LED);
+      //   gps_sleep();
+      // }
     }
     else if(timer_fired == 1){
         led_off(SEND_LED);
