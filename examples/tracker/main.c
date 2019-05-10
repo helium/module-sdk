@@ -140,12 +140,18 @@ int main(void) {
       char * line = gps_pop();
       if(line!= NULL){
         parseGPS(&gps, line);
-        printf_async("%s",line);
+        //printf_async("%s",line);
         free(line);
       }
     }
 
     if(timer_fired >= 5){
+
+        if(gps.latitudeDegrees!=0 && gps.longitudeDegrees!=0){
+          led_off(SLEEP_LED);
+        } else {
+          led_on(SLEEP_LED);
+        };
       //if(no_motion_counter <= SLEEP_THRESHOLD){
         no_motion_counter++;
 
@@ -173,12 +179,14 @@ int main(void) {
         byte_counter += sizeof(uint8_t);
         memcpy(buffer + byte_counter, &elevation, sizeof(int16_t));
 
+        //printf_async("seq: %u\r\n", seq);
         rf_send_raw(&pkt);
-        
+
         gps.latitudeDegrees = 0;
         gps.longitudeDegrees = 0;
         seq++;
         led_on(SEND_LED);
+
 
       //}
       // if (no_motion_counter == SLEEP_THRESHOLD){
